@@ -1,0 +1,2113 @@
+library(dplyr)
+library(data.table)
+library(writexl)
+library(stargazer)
+
+EF5_2013_cut <- fread("EF5_2013_cut.csv", sep = ",")
+EF9_2013_cut <- fread("EF9_2013_cut.csv", sep = ",")
+EF5_2015_cut <- fread("EF5_2015_cut.csv", sep = ",")
+EF9_2015_cut <- fread("EF9_2015_cut.csv", sep = ",")
+EF5_2017_cut <- fread("EF5_2017_cut.csv", sep = ",")
+EF9_2017_cut <- fread("EF9_2017_cut.csv", sep = ",")
+
+ESCOLA_2013 <- fread("TS_ESCOLA_2013.csv", sep = ",")
+ESCOLA_2015 <- fread("TS_ESCOLA_2015.csv", sep = ",")
+ESCOLA_2017 <- fread("TS_ESCOLA_2017.csv", sep = ",")
+
+
+### Adjusting DFs
+
+# Select and rename columns
+
+EF5_2013_cut_selected <- EF5_2013_cut %>%
+  select(
+    ID_PROVA_BRASIL, ID_ESCOLA, IN_PUBLICA, ID_LOCALIZACAO, ID_TURMA, ID_SERIE,
+    ID_ALUNO, IN_PREENCHIMENTO_PROVA,PROFICIENCIA_LP, DESVIO_PADRAO_LP,
+    PROFICIENCIA_LP_SAEB, DESVIO_PADRAO_LP_SAEB, PROFICIENCIA_MT, DESVIO_PADRAO_MT,
+    PROFICIENCIA_MT_SAEB, DESVIO_PADRAO_MT_SAEB, IN_PREENCHIMENTO_QUESTIONARIO,
+    CONVERSA_ESCOLA_RESP = TX_RESP_Q031, ESC_MAE = TX_RESP_Q019,
+    ESC_PAI = TX_RESP_Q023, HORAS_LAZER = TX_RESP_Q040,
+    HORAS_TRABALHO_DOMESTICO = TX_RESP_Q041, BANHEIRO = TX_RESP_Q014,
+    IDADE = TX_RESP_Q004, INCENTIVO_ESTUDO_RESP = TX_RESP_Q027, INCENTIVO_LICAO_RESP = TX_RESP_Q028,
+    INCENTIVO_PRESENCA_RESP = TX_RESP_Q030, MORA_MAE = TX_RESP_Q018, MORA_PAI = TX_RESP_Q022,
+    RACA = TX_RESP_Q002, REUNIAO_RESPONSAVEIS = TX_RESP_Q026,
+    CARRO = TX_RESP_Q012, SEXO = TX_RESP_Q001, TRABALHA = TX_RESP_Q042, COMPUTADOR = TX_RESP_Q013,
+    GELADEIRA = TX_RESP_Q008, MAQUINA_LAVAR = TX_RESP_Q011, N_PESSOAS_CASA = TX_RESP_Q016,
+    N_QUARTOS = TX_RESP_Q015, TV = TX_RESP_Q005, VIDEOCASSETE_DVD = TX_RESP_Q007, 
+    FREEZER_SEP = TX_RESP_Q010, FREEZER_JUNTO = TX_RESP_Q009, ENTRADA_ESCOLA = TX_RESP_Q043,
+    REPROVACAO = TX_RESP_Q045, LE_PAI = TX_RESP_Q024, LE_MAE = TX_RESP_Q020, LICAO_LP =TX_RESP_Q047,
+    LICAO_MAT = TX_RESP_Q049) %>%
+  filter(IN_PUBLICA == 1)
+  
+EF9_2013_cut_selected <- EF9_2013_cut %>%
+  select(
+    ID_PROVA_BRASIL, ID_ESCOLA, IN_PUBLICA, ID_LOCALIZACAO, ID_TURMA, ID_SERIE,
+    ID_ALUNO, IN_PREENCHIMENTO_PROVA,PROFICIENCIA_LP, DESVIO_PADRAO_LP,
+    PROFICIENCIA_LP_SAEB, DESVIO_PADRAO_LP_SAEB, PROFICIENCIA_MT, DESVIO_PADRAO_MT,
+    PROFICIENCIA_MT_SAEB, DESVIO_PADRAO_MT_SAEB, IN_PREENCHIMENTO_QUESTIONARIO,
+    CONVERSA_ESCOLA_RESP = TX_RESP_Q031, ESC_MAE = TX_RESP_Q019,
+    ESC_PAI = TX_RESP_Q023, HORAS_LAZER = TX_RESP_Q043,
+    HORAS_TRABALHO_DOMESTICO = TX_RESP_Q044, BANHEIRO = TX_RESP_Q014,
+    ANO_NASC = TX_RESP_Q004, INCENTIVO_ESTUDO_RESP = TX_RESP_Q027, INCENTIVO_LICAO_RESP = TX_RESP_Q028,
+    INCENTIVO_PRESENCA_RESP = TX_RESP_Q030, MORA_MAE = TX_RESP_Q018, MORA_PAI = TX_RESP_Q022,
+    RACA = TX_RESP_Q002, REUNIAO_RESPONSAVEIS = TX_RESP_Q026,
+    CARRO = TX_RESP_Q012, SEXO = TX_RESP_Q001, TRABALHA = TX_RESP_Q045, COMPUTADOR = TX_RESP_Q013,
+    GELADEIRA = TX_RESP_Q008, MAQUINA_LAVAR = TX_RESP_Q011, N_PESSOAS_CASA = TX_RESP_Q016,
+    N_QUARTOS = TX_RESP_Q015, TV = TX_RESP_Q005, VIDEOCASSETE_DVD = TX_RESP_Q007, 
+    FREEZER_SEP = TX_RESP_Q010, FREEZER_JUNTO = TX_RESP_Q009, ENTRADA_ESCOLA = TX_RESP_Q046,
+    REPROVACAO = TX_RESP_Q048, LE_PAI = TX_RESP_Q024, LE_MAE = TX_RESP_Q020,LICAO_LP =TX_RESP_Q051,
+    LICAO_MAT = TX_RESP_Q054)%>%
+  filter(IN_PUBLICA == 1)
+
+EF5_2015_cut_selected <- EF5_2015_cut %>%
+  select(ID_PROVA_BRASIL,
+    ID_ESCOLA,IN_PUBLICA,ID_LOCALIZACAO,ID_TURMA,ID_SERIE,ID_ALUNO,IN_PREENCHIMENTO_PROVA,
+    PROFICIENCIA_LP,DESVIO_PADRAO_LP,PROFICIENCIA_LP_SAEB,DESVIO_PADRAO_LP_SAEB,
+    PROFICIENCIA_MT,DESVIO_PADRAO_MT,PROFICIENCIA_MT_SAEB,DESVIO_PADRAO_MT_SAEB,
+    IN_PREENCHIMENTO_QUESTIONARIO,CONVERSA_ESCOLA_RESP = TX_RESP_Q031,ESC_MAE = TX_RESP_Q019,
+    ESC_PAI = TX_RESP_Q023, HORAS_LAZER = TX_RESP_Q040,
+    HORAS_TRABALHO_DOMESTICO = TX_RESP_Q041,BANHEIRO = TX_RESP_Q014,
+    IDADE = TX_RESP_Q004,INCENTIVO_ESTUDO_RESP = TX_RESP_Q027,
+    INCENTIVO_LICAO_RESP = TX_RESP_Q028,INCENTIVO_PRESENCA_RESP = TX_RESP_Q030,
+    MORA_MAE = TX_RESP_Q018,MORA_PAI = TX_RESP_Q022,RACA = TX_RESP_Q002,
+    REUNIAO_RESPONSAVEIS = TX_RESP_Q026,CARRO = TX_RESP_Q012,SEXO = TX_RESP_Q001,
+    TRABALHA = TX_RESP_Q042,COMPUTADOR = TX_RESP_Q013,GELADEIRA = TX_RESP_Q008,
+    MAQUINA_LAVAR = TX_RESP_Q011,N_PESSOAS_CASA = TX_RESP_Q016, N_QUARTOS = TX_RESP_Q015,
+    TV = TX_RESP_Q005, VIDEOCASSETE_DVD = TX_RESP_Q007, 
+    FREEZER_SEP = TX_RESP_Q010, FREEZER_JUNTO = TX_RESP_Q009, ENTRADA_ESCOLA = TX_RESP_Q043,
+    REPROVACAO = TX_RESP_Q045, LE_PAI = TX_RESP_Q024, LE_MAE = TX_RESP_Q020, LICAO_LP =TX_RESP_Q047,
+    LICAO_MAT = TX_RESP_Q049)%>%
+  filter(IN_PUBLICA == 1)
+
+EF9_2015_cut_selected <- EF9_2015_cut %>%
+  select(
+    ID_PROVA_BRASIL,ID_ESCOLA,IN_PUBLICA,ID_LOCALIZACAO,ID_TURMA,ID_SERIE,ID_ALUNO,
+    IN_PREENCHIMENTO_PROVA,PROFICIENCIA_LP,DESVIO_PADRAO_LP,PROFICIENCIA_LP_SAEB,
+    DESVIO_PADRAO_LP_SAEB,PROFICIENCIA_MT,DESVIO_PADRAO_MT,
+    PROFICIENCIA_MT_SAEB, DESVIO_PADRAO_MT_SAEB, IN_PREENCHIMENTO_QUESTIONARIO,
+    ANO_NASC = TX_RESP_Q004,CONVERSA_ESCOLA_RESP = TX_RESP_Q031,ESC_MAE = TX_RESP_Q019,
+    ESC_PAI = TX_RESP_Q023,HORAS_LAZER = TX_RESP_Q043,
+    HORAS_TRABALHO_DOMESTICO = TX_RESP_Q044,BANHEIRO = TX_RESP_Q014,
+    INCENTIVO_ESTUDO_RESP = TX_RESP_Q027,INCENTIVO_LICAO_RESP = TX_RESP_Q028,
+    INCENTIVO_PRESENCA_RESP = TX_RESP_Q030,MORA_MAE = TX_RESP_Q018,MORA_PAI = TX_RESP_Q022,
+    RACA = TX_RESP_Q002,REUNIAO_RESPONSAVEIS = TX_RESP_Q026,CARRO = TX_RESP_Q012,
+    SEXO = TX_RESP_Q001,TRABALHA = TX_RESP_Q045,COMPUTADOR = TX_RESP_Q013,
+    GELADEIRA = TX_RESP_Q008,MAQUINA_LAVAR = TX_RESP_Q011,
+    N_PESSOAS_CASA = TX_RESP_Q016,N_QUARTOS = TX_RESP_Q015,
+    TV = TX_RESP_Q005,VIDEOCASSETE_DVD = TX_RESP_Q007, 
+    FREEZER_SEP = TX_RESP_Q010, FREEZER_JUNTO = TX_RESP_Q009, ENTRADA_ESCOLA = TX_RESP_Q046, 
+    REPROVACAO = TX_RESP_Q048, LE_PAI = TX_RESP_Q024, LE_MAE = TX_RESP_Q020,LICAO_LP =TX_RESP_Q051,
+    LICAO_MAT = TX_RESP_Q054)%>%
+  filter(IN_PUBLICA == 1)
+
+EF5_2017_cut_selected <- EF5_2017_cut %>%
+  select(
+    ID_PROVA_BRASIL,ID_ESCOLA,IN_PUBLICA,ID_LOCALIZACAO,ID_TURMA,ID_SERIE,
+    ID_ALUNO,IN_PREENCHIMENTO_PROVA,PROFICIENCIA_LP,ERRO_PADRAO_LP,PROFICIENCIA_LP_SAEB,
+    ERRO_PADRAO_LP_SAEB,PROFICIENCIA_MT,ERRO_PADRAO_MT,PROFICIENCIA_MT_SAEB,
+    ERRO_PADRAO_MT_SAEB,IN_PREENCHIMENTO_QUESTIONARIO,
+    CONVERSA_ESCOLA_RESP = TX_RESP_Q031,ESC_MAE = TX_RESP_Q019,
+    ESC_PAI = TX_RESP_Q023,HORAS_LAZER = TX_RESP_Q040,HORAS_TRABALHO_DOMESTICO = TX_RESP_Q041,
+    IDADE = TX_RESP_Q004,
+    INCENTIVO_ESTUDO_RESP = TX_RESP_Q027,INCENTIVO_LICAO_RESP = TX_RESP_Q028,
+    INCENTIVO_PRESENCA_RESP = TX_RESP_Q030,MORA_MAE = TX_RESP_Q018,MORA_PAI = TX_RESP_Q022,
+    RACA = TX_RESP_Q002,REUNIAO_RESPONSAVEIS = TX_RESP_Q026,BANHEIRO = TX_RESP_Q014,
+    CARRO = TX_RESP_Q012, SEXO = TX_RESP_Q001,
+    TRABALHA = TX_RESP_Q042,COMPUTADOR = TX_RESP_Q013,GELADEIRA = TX_RESP_Q008,
+    MAQUINA_LAVAR = TX_RESP_Q011,N_PESSOAS_CASA = TX_RESP_Q016,N_QUARTOS = TX_RESP_Q015,
+    TV = TX_RESP_Q005,VIDEOCASSETE_DVD = TX_RESP_Q007, 
+    FREEZER_SEP = TX_RESP_Q010, FREEZER_JUNTO = TX_RESP_Q009, ENTRADA_ESCOLA = TX_RESP_Q043, 
+    REPROVACAO = TX_RESP_Q045, LE_PAI = TX_RESP_Q024, LE_MAE = TX_RESP_Q020, LICAO_LP =TX_RESP_Q047,
+    LICAO_MAT = TX_RESP_Q049)%>%
+  filter(IN_PUBLICA == 1)
+
+EF9_2017_cut_selected <- EF9_2017_cut %>%
+  select(ID_PROVA_BRASIL,
+    ID_ESCOLA,IN_PUBLICA,ID_LOCALIZACAO,ID_TURMA,ID_SERIE,ID_ALUNO,
+    IN_PREENCHIMENTO_PROVA,PROFICIENCIA_LP,ERRO_PADRAO_LP,
+    PROFICIENCIA_LP_SAEB,ERRO_PADRAO_LP_SAEB,PROFICIENCIA_MT,ERRO_PADRAO_MT,
+    PROFICIENCIA_MT_SAEB,ERRO_PADRAO_MT_SAEB,
+    IN_PREENCHIMENTO_QUESTIONARIO,HORAS_TRABALHO_DOMESTICO = TX_RESP_Q044,
+    ANO_NASC = TX_RESP_Q004,CONVERSA_ESCOLA_RESP = TX_RESP_Q031,ESC_MAE = TX_RESP_Q019,
+    ESC_PAI = TX_RESP_Q023,HORAS_LAZER = TX_RESP_Q043,
+    INCENTIVO_ESTUDO_RESP = TX_RESP_Q027,INCENTIVO_LICAO_RESP = TX_RESP_Q028,
+    INCENTIVO_PRESENCA_RESP = TX_RESP_Q030,MORA_MAE = TX_RESP_Q018,MORA_PAI = TX_RESP_Q022,
+    RACA = TX_RESP_Q002,REUNIAO_RESPONSAVEIS = TX_RESP_Q026,BANHEIRO = TX_RESP_Q014,
+    CARRO = TX_RESP_Q012,SEXO = TX_RESP_Q001,TRABALHA = TX_RESP_Q045,COMPUTADOR = TX_RESP_Q013,
+    GELADEIRA = TX_RESP_Q008,MAQUINA_LAVAR = TX_RESP_Q011,N_PESSOAS_CASA = TX_RESP_Q016,
+    N_QUARTOS = TX_RESP_Q015,TV = TX_RESP_Q005,VIDEOCASSETE_DVD = TX_RESP_Q007, 
+    FREEZER_SEP = TX_RESP_Q010, FREEZER_JUNTO = TX_RESP_Q009, ENTRADA_ESCOLA = TX_RESP_Q046,
+    REPROVACAO = TX_RESP_Q048, LE_PAI = TX_RESP_Q024, LE_MAE = TX_RESP_Q020,LICAO_LP =TX_RESP_Q051,
+    LICAO_MAT = TX_RESP_Q054)%>%
+  filter(IN_PUBLICA == 1)
+
+
+# Schools
+
+
+FILTERED_ESCOLA_2013 <- ESCOLA_2013 %>%
+  filter(ID_UF == 33 & IN_PUBLICA == 1) %>%
+  select(ID_PROVA_BRASIL,ID_MUNICIPIO, ID_ESCOLA, PC_FORMACAO_DOCENTE_INICIAL, PC_FORMACAO_DOCENTE_FINAL,
+         TAXA_PARTICIPACAO_5EF, TAXA_PARTICIPACAO_9EF, MEDIA_5EF_LP, MEDIA_5EF_MT, MEDIA_9EF_LP, MEDIA_9EF_MT,
+         LAB = TX_RESP_Q060)
+
+FILTERED_ESCOLA_2015 <- ESCOLA_2015 %>%
+  filter(ID_UF == 33 & IN_PUBLICA == 1)%>%
+  select(ID_PROVA_BRASIL, ID_MUNICIPIO,ID_ESCOLA, PC_FORMACAO_DOCENTE_INICIAL, PC_FORMACAO_DOCENTE_FINAL,
+         TAXA_PARTICIPACAO_5EF, TAXA_PARTICIPACAO_9EF, MEDIA_5EF_LP, MEDIA_5EF_MT, MEDIA_9EF_LP, MEDIA_9EF_MT,
+         LAB = TX_RESP_Q060)
+
+FILTERED_ESCOLA_2017 <- ESCOLA_2017 %>%
+  filter(ID_UF == 33 & IN_PUBLICA == 1) %>%
+  select(ID_PROVA_BRASIL,ID_MUNICIPIO, ID_ESCOLA, PC_FORMACAO_DOCENTE_INICIAL, PC_FORMACAO_DOCENTE_FINAL,
+         TAXA_PARTICIPACAO_5EF, TAXA_PARTICIPACAO_9EF, MEDIA_5EF_LP, MEDIA_5EF_MT, MEDIA_9EF_LP, MEDIA_9EF_MT,
+         LAB = TX_RESP_Q060)
+
+
+schools_5ano <- bind_rows(
+  FILTERED_ESCOLA_2013 %>% 
+    select("ID_PROVA_BRASIL","ID_MUNICIPIO", "ID_ESCOLA", "PC_FORMACAO_DOCENTE_INICIAL",
+           "TAXA_PARTICIPACAO_5EF", "MEDIA_5EF_LP", "MEDIA_5EF_MT", "LAB"),
+  FILTERED_ESCOLA_2015 %>% 
+    select("ID_PROVA_BRASIL", "ID_MUNICIPIO","ID_ESCOLA", "PC_FORMACAO_DOCENTE_INICIAL",
+           "TAXA_PARTICIPACAO_5EF", "MEDIA_5EF_LP", "MEDIA_5EF_MT", "LAB"),
+  FILTERED_ESCOLA_2017 %>% 
+    select("ID_PROVA_BRASIL", "ID_MUNICIPIO","ID_ESCOLA", "PC_FORMACAO_DOCENTE_INICIAL", 
+           "TAXA_PARTICIPACAO_5EF", "MEDIA_5EF_LP", "MEDIA_5EF_MT", "LAB"))%>% 
+  rename(PC_FORMACAO_DOCENTE = PC_FORMACAO_DOCENTE_INICIAL)%>%
+  mutate(PC_FORMACAO_DOCENTE = na_if(PC_FORMACAO_DOCENTE, 0)) %>%
+  mutate(LAB = recode(LAB,
+                      "A" = 1, 
+                      "B" = 1,
+                      "C" = 1,
+                      "D" = 0))
+
+
+schools_9ano <- bind_rows(
+  FILTERED_ESCOLA_2013 %>% 
+    select("ID_PROVA_BRASIL", "ID_MUNICIPIO", "ID_ESCOLA", "PC_FORMACAO_DOCENTE_FINAL",
+           "TAXA_PARTICIPACAO_9EF", "MEDIA_9EF_LP", "MEDIA_9EF_MT", "LAB"),
+  FILTERED_ESCOLA_2015 %>% 
+    select("ID_PROVA_BRASIL", "ID_MUNICIPIO", "ID_ESCOLA", "PC_FORMACAO_DOCENTE_FINAL",
+           "TAXA_PARTICIPACAO_9EF", "MEDIA_9EF_LP", "MEDIA_9EF_MT", "LAB"),
+  FILTERED_ESCOLA_2017 %>% 
+    select("ID_PROVA_BRASIL", "ID_MUNICIPIO", "ID_ESCOLA", "PC_FORMACAO_DOCENTE_FINAL",
+           "TAXA_PARTICIPACAO_9EF", "MEDIA_9EF_LP", "MEDIA_9EF_MT", "LAB")
+) %>% 
+  rename(PC_FORMACAO_DOCENTE = PC_FORMACAO_DOCENTE_FINAL) %>%
+  mutate(PC_FORMACAO_DOCENTE = na_if(PC_FORMACAO_DOCENTE, 0)) %>%
+  mutate(LAB = recode(LAB, 
+                      "A" = 1, 
+                      "B" = 1,
+                      "C" = 1,
+                      "D" = 0))
+
+
+
+### Adjusting the scale
+
+## 2013
+
+EF5_2013_cut_selected_limpo <- EF5_2013_cut_selected %>%
+  mutate_all(~ifelse(. %in% c(".", "*"), NA, .)) %>%
+  mutate(HORAS_LAZER = recode(HORAS_LAZER, 
+                              "A" = "< 1 hour",
+                              "B" = "1 - 2 hours",
+                              "C" = "2 - 3 hours",
+                              "D" = "> 3 hours",
+                              "E" = "I don't spend my time with this")) %>%
+  mutate(HORAS_TRABALHO_DOMESTICO = recode(HORAS_TRABALHO_DOMESTICO, 
+                              "A" = "< 1 hour",
+                              "B" = "1 - 2 hours",
+                              "C" = "2 - 3 hours",
+                              "D" = "> 3 hours",
+                              "E" = "I don't spend my time with this")) %>%
+  mutate(ESC_MAE = recode(ESC_MAE, 
+                          "A" = "Has never studied",
+                          "B" = "Did not finish Primary School",
+                          "C" = "Primary School",
+                          "D" = "Lower Secondary",
+                          "E" = "Upper Secondary",
+                          "F" = "Higher Education",
+                          "G" = "I don't know"))%>%
+  mutate(ESC_PAI = recode(ESC_PAI, 
+                          "A" = "Has never studied",
+                          "B" = "Did not finish Primary School",
+                          "C" = "Primary School",
+                          "D" = "Lower Secondary",
+                          "E" = "Upper Secondary",
+                          "F" = "Higher Education",
+                          "G" = "I don't know"))%>%
+  mutate(RACA = recode(RACA, 
+                          "A" = "White",
+                          "B" = "Mixed",
+                          "C" = "Black",
+                          "D" = "Yellow",
+                          "E" = "Indigenous",
+                          "F" = "No information"))%>%
+  mutate(MORA_MAE = recode(MORA_MAE, 
+                       "A" = 1,
+                       "B" = 0,
+                       "C" = 0))%>%
+  mutate(MORA_PAI = recode(MORA_PAI, 
+                           "A" = 1,
+                           "B" = 0,
+                           "C" = 0))%>%
+  mutate(IDADE = recode(IDADE, 
+                               "A" = 8,
+                               "B" = 9,
+                               "C" = 10,
+                               "D" = 11,
+                               "E" = 12,
+                               "F" = 13,
+                               "G" = 14,
+                               "H" = 15))%>%
+  mutate(ENTRADA_ESCOLA = recode(ENTRADA_ESCOLA, 
+                                 "A" = "< 3 years old", 
+                                 "B" = "4 - 5 years old", 
+                                 "C" = "6 - 7 years old", 
+                                 "D" = "> 8 years old")) %>%
+  mutate(REPROVACAO = recode(REPROVACAO, 
+                             "A" = "No",
+                             "B" = "Yes, once", 
+                             "C" = "Yes, twice or more"))%>%
+  mutate(TRABALHA = recode(TRABALHA,
+                           "A" = 1,
+                           "B" = 0))%>%
+  mutate(SEXO = recode(SEXO, 
+                       "A" = "Male", 
+                       "B" = "Female"))%>%
+  mutate(LE_PAI = recode(LE_PAI, 
+                         "A" = 1,
+                         "B" = 0))%>%
+  mutate(LE_MAE = recode(LE_MAE, 
+                         "A" = 1,
+                         "B" = 0))%>%
+  mutate(LICAO_LP = recode(LICAO_LP,
+                           "A" = 1,
+                           "B" = 1,
+                           "C" = 0,
+                           "D" = 0))%>%
+  mutate(LICAO_MAT = recode(LICAO_MAT,
+                            "A" = 1,
+                            "B" = 1,
+                            "C" = 0,
+                            "D" = 0))%>%
+  mutate(N_PESSOAS_CASA = recode(N_PESSOAS_CASA,
+                            "A" = 1,
+                            "B" = 2,
+                            "C" = 3,
+                            "D" = 4,
+                            "E" = 5,
+                            "F" = 6))
+
+EF9_2013_cut_selected_limpo <- EF9_2013_cut_selected %>%
+  mutate_all(~ifelse(. %in% c(".", "*"), NA, .)) %>%
+  mutate(HORAS_LAZER = recode(HORAS_LAZER, 
+                              "A" = "< 1 hour",
+                              "B" = "1 - 2 hours",
+                              "C" = "2 - 3 hours",
+                              "D" = "> 3 hours",
+                              "E" = "I don't spend my time with this")) %>%
+  mutate(HORAS_TRABALHO_DOMESTICO = recode(HORAS_TRABALHO_DOMESTICO, 
+                              "A" = "< 1 hour",
+                              "B" = "1 - 2 hours",
+                              "C" = "2 - 3 hours",
+                              "D" = "> 3 hours",
+                              "E" = "I don't spend my time with this")) %>%
+  mutate(ESC_MAE = recode(ESC_MAE, 
+                          "A" = "Has never studied",
+                          "B" = "Did not finish Primary School",
+                          "C" = "Primary School",
+                          "D" = "Lower Secondary",
+                          "E" = "Upper Secondary",
+                          "F" = "Higher Education",
+                          "G" = "I don't know"))%>%
+  mutate(ESC_PAI = recode(ESC_PAI, 
+                          "A" = "Has never studied",
+                          "B" = "Did not finish Primary School",
+                          "C" = "Primary School",
+                          "D" = "Lower Secondary",
+                          "E" = "Upper Secondary",
+                          "F" = "Higher Education",
+                          "G" = "I don't know"))%>%
+  mutate(RACA = recode(RACA, 
+                          "A" = "White",
+                          "B" = "Mixed",
+                          "C" = "Black",
+                          "D" = "Yellow",
+                          "E" = "Indigenous",
+                          "F" = "No information"))%>%
+  mutate(MORA_MAE = recode(MORA_MAE, 
+                       "A" = 1,
+                       "B" = 0,
+                       "C" = 0))%>%
+  mutate(MORA_PAI = recode(MORA_PAI, 
+                           "A" = 1,
+                           "B" = 0,
+                           "C" = 0))%>%
+  mutate(IDADE = recode(ANO_NASC, 
+                               "A" = 12,
+                               "B" = 13,
+                               "C" = 14,
+                               "D" = 15,
+                               "E" = 16,
+                               "F" = 17,
+                               "G" = 18,
+                               "H" = 19))%>%
+  mutate(ENTRADA_ESCOLA = recode(ENTRADA_ESCOLA, 
+                                 "A" = "< 3 years old", 
+                                 "B" = "4 - 5 years old", 
+                                 "C" = "6 - 7 years old", 
+                                 "D" = "> 8 years old")) %>%
+  mutate(REPROVACAO = recode(REPROVACAO, 
+                             "A" = "No",
+                             "B" = "Yes, once", 
+                             "C" = "Yes, twice or more"))%>%
+  mutate(TRABALHA = recode(TRABALHA,
+                           "A" = 1,
+                           "B" = 0))%>%
+  mutate(SEXO = recode(SEXO, 
+                       "A" = "Male", 
+                       "B" = "Female"))%>%
+  mutate(LE_PAI = recode(LE_PAI, 
+                         "A" = 1,
+                         "B" = 0))%>%
+  mutate(LE_MAE = recode(LE_MAE, 
+                         "A" = 1,
+                         "B" = 0))%>%
+  mutate(LICAO_LP = recode(LICAO_LP,
+                           "A" = 1,
+                           "B" = 1,
+                           "C" = 0,
+                           "D" = 0))%>%
+  mutate(LICAO_MAT = recode(LICAO_MAT,
+                            "A" = 1,
+                            "B" = 1,
+                            "C" = 0,
+                            "D" = 0))%>%
+  mutate(N_PESSOAS_CASA = recode(N_PESSOAS_CASA,
+                                 "A" = 1,
+                                 "B" = 2,
+                                 "C" = 3,
+                                 "D" = 4,
+                                 "E" = 5,
+                                 "F" = 6))
+## 2015
+
+
+EF5_2015_cut_selected_limpo <- EF5_2015_cut_selected %>%
+  mutate_all(~ifelse(. %in% c(".", "*"), NA, .)) %>%
+  mutate(HORAS_LAZER = recode(HORAS_LAZER, 
+                              "A" = "< 1 hour",
+                              "B" = "1 - 2 hours",
+                              "C" = "2 - 3 hours",
+                              "D" = "> 3 hours",
+                              "E" = "I don't spend my time with this")) %>%
+  mutate(HORAS_TRABALHO_DOMESTICO = recode(HORAS_TRABALHO_DOMESTICO, 
+                                           "A" = "< 1 hour",
+                                           "B" = "1 - 2 hours",
+                                           "C" = "2 - 3 hours",
+                                           "D" = "> 3 hours",
+                                           "E" = "I don't spend my time with this")) %>%
+  mutate(ESC_MAE = recode(ESC_MAE, 
+                          "A" = "Has never studied",
+                          "B" = "Did not finish Primary School",
+                          "C" = "Primary School",
+                          "D" = "Lower Secondary",
+                          "E" = "Upper Secondary",
+                          "F" = "Higher Education",
+                          "G" = "I don't know"))%>%
+  mutate(ESC_PAI = recode(ESC_PAI, 
+                          "A" = "Has never studied",
+                          "B" = "Did not finish Primary School",
+                          "C" = "Primary School",
+                          "D" = "Lower Secondary",
+                          "E" = "Upper Secondary",
+                          "F" = "Higher Education",
+                          "G" = "I don't know"))%>%
+  mutate(RACA = recode(RACA, 
+                       "A" = "White",
+                       "B" = "Mixed",
+                       "C" = "Black",
+                       "D" = "Yellow",
+                       "E" = "Indigenous",
+                       "F" = "No information"))%>%
+  mutate(MORA_MAE = recode(MORA_MAE, 
+                           "A" = 1,
+                           "B" = 0,
+                           "C" = 0))%>%
+  mutate(MORA_PAI = recode(MORA_PAI, 
+                           "A" = 1,
+                           "B" = 0,
+                           "C" = 0))%>%
+  mutate(IDADE = recode(IDADE, 
+                        "A" = 8,
+                        "B" = 9,
+                        "C" = 10,
+                        "D" = 11,
+                        "E" = 12,
+                        "F" = 13,
+                        "G" = 14,
+                        "H" = 15))%>%
+  mutate(ENTRADA_ESCOLA = recode(ENTRADA_ESCOLA, 
+                                 "A" = "< 3 years old", 
+                                 "B" = "4 - 5 years old", 
+                                 "C" = "6 - 7 years old", 
+                                 "D" = "> 8 years old")) %>%
+  mutate(REPROVACAO = recode(REPROVACAO, 
+                             "A" = "No",
+                             "B" = "Yes, once", 
+                             "C" = "Yes, twice or more"))%>%
+  mutate(TRABALHA = recode(TRABALHA,
+                           "A" = 1,
+                           "B" = 0))%>%
+  mutate(SEXO = recode(SEXO, 
+                       "A" = "Male", 
+                       "B" = "Female"))%>%
+  mutate(LE_PAI = recode(LE_PAI, 
+                         "A" = 1,
+                         "B" = 0))%>%
+  mutate(LE_MAE = recode(LE_MAE, 
+                         "A" = 1,
+                         "B" = 0))%>%
+  mutate(LICAO_LP = recode(LICAO_LP,
+                           "A" = 1,
+                           "B" = 1,
+                           "C" = 0,
+                           "D" = 0))%>%
+  mutate(LICAO_MAT = recode(LICAO_MAT,
+                            "A" = 1,
+                            "B" = 1,
+                            "C" = 0,
+                            "D" = 0))%>%
+  mutate(N_PESSOAS_CASA = recode(N_PESSOAS_CASA,
+                                 "A" = 1,
+                                 "B" = 2,
+                                 "C" = 3,
+                                 "D" = 4,
+                                 "E" = 5,
+                                 "F" = 6))
+
+
+EF9_2015_cut_selected_limpo <- EF9_2015_cut_selected %>%
+  mutate_all(~ifelse(. %in% c(".", "*"), NA, .)) %>%
+  mutate(HORAS_LAZER = recode(HORAS_LAZER, 
+                              "A" = "< 1 hour",
+                              "B" = "1 - 2 hours",
+                              "C" = "2 - 3 hours",
+                              "D" = "> 3 hours",
+                              "E" = "I don't spend my time with this")) %>%
+  mutate(HORAS_TRABALHO_DOMESTICO = recode(HORAS_TRABALHO_DOMESTICO, 
+                                           "A" = "< 1 hour",
+                                           "B" = "1 - 2 hours",
+                                           "C" = "2 - 3 hours",
+                                           "D" = "> 3 hours",
+                                           "E" = "I don't spend my time with this")) %>%
+  mutate(ESC_MAE = recode(ESC_MAE, 
+                          "A" = "Has never studied",
+                          "B" = "Did not finish Primary School",
+                          "C" = "Primary School",
+                          "D" = "Lower Secondary",
+                          "E" = "Upper Secondary",
+                          "F" = "Higher Education",
+                          "G" = "I don't know"))%>%
+  mutate(ESC_PAI = recode(ESC_PAI, 
+                          "A" = "Has never studied",
+                          "B" = "Did not finish Primary School",
+                          "C" = "Primary School",
+                          "D" = "Lower Secondary",
+                          "E" = "Upper Secondary",
+                          "F" = "Higher Education",
+                          "G" = "I don't know"))%>%
+  mutate(RACA = recode(RACA, 
+                       "A" = "White",
+                       "B" = "Mixed",
+                       "C" = "Black",
+                       "D" = "Yellow",
+                       "E" = "Indigenous",
+                       "F" = "No information"))%>%
+  mutate(MORA_MAE = recode(MORA_MAE, 
+                           "A" = 1,
+                           "B" = 0,
+                           "C" = 0))%>%
+  mutate(MORA_PAI = recode(MORA_PAI, 
+                           "A" = 1,
+                           "B" = 0,
+                           "C" = 0))%>%
+  mutate(IDADE = recode(ANO_NASC, 
+                        "A" = 12,
+                        "B" = 13,
+                        "C" = 14,
+                        "D" = 15,
+                        "E" = 16,
+                        "F" = 17,
+                        "G" = 18,
+                        "H" = 19))%>%
+  mutate(ENTRADA_ESCOLA = recode(ENTRADA_ESCOLA, 
+                                 "A" = "< 3 years old", 
+                                 "B" = "4 - 5 years old", 
+                                 "C" = "6 - 7 years old", 
+                                 "D" = "> 8 years old")) %>%
+  mutate(REPROVACAO = recode(REPROVACAO, 
+                             "A" = "No",
+                             "B" = "Yes, once", 
+                             "C" = "Yes, twice or more"))%>%
+  mutate(TRABALHA = recode(TRABALHA,
+                           "A" = 1,
+                           "B" = 0))%>%
+  mutate(SEXO = recode(SEXO, 
+                       "A" = "Male", 
+                       "B" = "Female"))%>%
+  mutate(LE_PAI = recode(LE_PAI, 
+                         "A" = 1,
+                         "B" = 0))%>%
+  mutate(LE_MAE = recode(LE_MAE, 
+                         "A" = 1,
+                         "B" = 0))%>%
+  mutate(LICAO_LP = recode(LICAO_LP,
+                           "A" = 1,
+                           "B" = 1,
+                           "C" = 0,
+                           "D" = 0))%>%
+  mutate(LICAO_MAT = recode(LICAO_MAT,
+                            "A" = 1,
+                            "B" = 1,
+                            "C" = 0,
+                            "D" = 0))%>%
+  mutate(N_PESSOAS_CASA = recode(N_PESSOAS_CASA,
+                                 "A" = 1,
+                                 "B" = 2,
+                                 "C" = 3,
+                                 "D" = 4,
+                                 "E" = 5,
+                                 "F" = 6))
+
+## 2017
+
+
+EF5_2017_cut_selected_limpo <- EF5_2017_cut_selected %>%
+  mutate_all(~ifelse(. %in% c(".", "*"), NA, .)) %>%
+  mutate(HORAS_LAZER = recode(HORAS_LAZER, 
+                              "A" = "< 1 hour",
+                              "B" = "1 - 2 hours",
+                              "C" = "2 - 3 hours",
+                              "D" = "> 3 hours",
+                              "E" = "I don't spend my time with this")) %>%
+  mutate(HORAS_TRABALHO_DOMESTICO = recode(HORAS_TRABALHO_DOMESTICO, 
+                                           "A" = "< 1 hour",
+                                           "B" = "1 - 2 hours",
+                                           "C" = "2 - 3 hours",
+                                           "D" = "> 3 hours",
+                                           "E" = "I don't spend my time with this")) %>%
+  mutate(ESC_MAE = recode(ESC_MAE, 
+                          "A" = "Has never studied",
+                          "B" = "Did not finish Primary School",
+                          "C" = "Primary School",
+                          "D" = "Lower Secondary",
+                          "E" = "Upper Secondary",
+                          "F" = "Higher Education",
+                          "G" = "I don't know"))%>%
+  mutate(ESC_PAI = recode(ESC_PAI, 
+                          "A" = "Has never studied",
+                          "B" = "Did not finish Primary School",
+                          "C" = "Primary School",
+                          "D" = "Lower Secondary",
+                          "E" = "Upper Secondary",
+                          "F" = "Higher Education",
+                          "G" = "I don't know"))%>%
+  mutate(RACA = recode(RACA, 
+                       "A" = "White",
+                       "B" = "Black",
+                       "C" = "Mixed",
+                       "D" = "Yellow",
+                       "E" = "Indigenous",
+                       "F" = "No information"))%>%
+  mutate(MORA_MAE = recode(MORA_MAE, 
+                           "A" = 1,
+                           "B" = 0,
+                           "C" = 0))%>%
+  mutate(MORA_PAI = recode(MORA_PAI, 
+                           "A" = 1,
+                           "B" = 0,
+                           "C" = 0))%>%
+  mutate(IDADE = recode(IDADE, 
+                        "A" = 8,
+                        "B" = 9,
+                        "C" = 10,
+                        "D" = 11,
+                        "E" = 12,
+                        "F" = 13,
+                        "G" = 14,
+                        "H" = 15))%>%
+  mutate(ENTRADA_ESCOLA = recode(ENTRADA_ESCOLA, 
+                                 "A" = "< 3 years old", 
+                                 "B" = "4 - 5 years old", 
+                                 "C" = "6 - 7 years old", 
+                                 "D" = "> 8 years old")) %>%
+  mutate(REPROVACAO = recode(REPROVACAO, 
+                             "A" = "No",
+                             "B" = "Yes, once", 
+                             "C" = "Yes, twice or more"))%>%
+  mutate(TRABALHA = recode(TRABALHA,
+                           "A" = 1,
+                           "B" = 0))%>%
+  mutate(SEXO = recode(SEXO, 
+                       "A" = "Male", 
+                       "B" = "Female"))%>%
+  mutate(LE_PAI = recode(LE_PAI, 
+                         "A" = 1,
+                         "B" = 0))%>%
+  mutate(LE_MAE = recode(LE_MAE, 
+                         "A" = 1,
+                         "B" = 0))%>%
+  mutate(LICAO_LP = recode(LICAO_LP,
+                           "A" = 1,
+                           "B" = 1,
+                           "C" = 0,
+                           "D" = 0)) %>%
+  mutate(LICAO_MAT = recode(LICAO_MAT,
+                            "A" = 1,
+                            "B" = 1,
+                            "C" = 0,
+                            "D" = 0))%>%
+  mutate(N_PESSOAS_CASA = recode(N_PESSOAS_CASA,
+                                 "A" = 1,
+                                 "B" = 2,
+                                 "C" = 3,
+                                 "D" = 4,
+                                 "E" = 5,
+                                 "F" = 6))
+
+
+EF9_2017_cut_selected_limpo <- EF9_2017_cut_selected %>%
+  mutate_all(~ifelse(. %in% c(".", "*"), NA, .)) %>%
+  mutate(HORAS_LAZER = recode(HORAS_LAZER, 
+                              "A" = "< 1 hour",
+                              "B" = "1 - 2 hours",
+                              "C" = "2 - 3 hours",
+                              "D" = "> 3 hours",
+                              "E" = "I don't spend my time with this")) %>%
+  mutate(HORAS_TRABALHO_DOMESTICO = recode(HORAS_TRABALHO_DOMESTICO, 
+                                           "A" = "< 1 hour",
+                                           "B" = "1 - 2 hours",
+                                           "C" = "2 - 3 hours",
+                                           "D" = "> 3 hours",
+                                           "E" = "I don't spend my time with this")) %>%
+  mutate(ESC_MAE = recode(ESC_MAE, 
+                          "A" = "Has never studied",
+                          "B" = "Did not finish Primary School",
+                          "C" = "Primary School",
+                          "D" = "Lower Secondary",
+                          "E" = "Upper Secondary",
+                          "F" = "Higher Education",
+                          "G" = "I don't know"))%>%
+  mutate(ESC_PAI = recode(ESC_PAI, 
+                          "A" = "Has never studied",
+                          "B" = "Did not finish Primary School",
+                          "C" = "Primary School",
+                          "D" = "Lower Secondary",
+                          "E" = "Upper Secondary",
+                          "F" = "Higher Education",
+                          "G" = "I don't know"))%>%
+  mutate(RACA = recode(RACA, 
+                       "A" = "White",
+                       "B" = "Black",
+                       "C" = "Mixed",
+                       "D" = "Yellow",
+                       "E" = "Indigenous",
+                       "F" = "No information"))%>%
+  mutate(MORA_MAE = recode(MORA_MAE, 
+                           "A" = 1,
+                           "B" = 0,
+                           "C" = 0))%>%
+  mutate(MORA_PAI = recode(MORA_PAI, 
+                           "A" = 1,
+                           "B" = 0,
+                           "C" = 0))%>%
+  mutate(IDADE = recode(ANO_NASC, 
+                        "A" = 12,
+                        "B" = 13,
+                        "C" = 14,
+                        "D" = 15,
+                        "E" = 16,
+                        "F" = 17,
+                        "G" = 18,
+                        "H" = 19))%>%
+  mutate(ENTRADA_ESCOLA = recode(ENTRADA_ESCOLA, 
+                                 "A" = "< 3 years old", 
+                                 "B" = "4 - 5 years old", 
+                                 "C" = "6 - 7 years old", 
+                                 "D" = "> 8 years old")) %>%
+  mutate(REPROVACAO = recode(REPROVACAO, 
+                             "A" = "No",
+                             "B" = "Yes, once", 
+                             "C" = "Yes, twice or more"))%>%
+  mutate(TRABALHA = recode(TRABALHA,
+                           "A" = 1,
+                           "B" = 0))%>%
+  mutate(SEXO = recode(SEXO, 
+                       "A" = "Male", 
+                       "B" = "Female"))%>%
+  mutate(LE_PAI = recode(LE_PAI, 
+                         "A" = 1,
+                         "B" = 0))%>%
+  mutate(LE_MAE = recode(LE_MAE, 
+                         "A" = 1,
+                         "B" = 0))%>%
+  mutate(LICAO_LP = recode(LICAO_LP,
+                           "A" = 1,
+                           "B" = 1,
+                           "C" = 0,
+                           "D" = 0)) %>%
+  mutate(LICAO_MAT = recode(LICAO_MAT,
+                            "A" = 1,
+                            "B" = 1,
+                            "C" = 0,
+                            "D" = 0))%>%
+  mutate(N_PESSOAS_CASA = recode(N_PESSOAS_CASA,
+                                 "A" = 1,
+                                 "B" = 2,
+                                 "C" = 3,
+                                 "D" = 4,
+                                 "E" = 5,
+                                 "F" = 6))
+
+# Binding 5th grade
+
+geral_5ano <- bind_rows(
+  EF5_2013_cut_selected_limpo %>% 
+    select("ID_PROVA_BRASIL", "ID_ESCOLA", "IN_PUBLICA", "ID_LOCALIZACAO", "ID_TURMA", "ID_SERIE",
+           "ID_ALUNO", "IN_PREENCHIMENTO_PROVA", "PROFICIENCIA_LP", "PROFICIENCIA_LP_SAEB",
+           "PROFICIENCIA_MT", "PROFICIENCIA_MT_SAEB", "IN_PREENCHIMENTO_QUESTIONARIO",
+           "ESC_MAE", "ESC_PAI", "HORAS_LAZER", "HORAS_TRABALHO_DOMESTICO", "BANHEIRO",
+           "IDADE", "MORA_MAE", "MORA_PAI", "RACA", "CARRO", "SEXO", "TRABALHA", "COMPUTADOR",
+           "GELADEIRA", "MAQUINA_LAVAR", "N_PESSOAS_CASA", "VIDEOCASSETE_DVD", "N_QUARTOS", "TV", "FREEZER_JUNTO", 
+           "FREEZER_SEP", "ENTRADA_ESCOLA", "REPROVACAO", "LE_PAI", "LE_MAE","LICAO_LP", "LICAO_MAT"),
+  EF5_2015_cut_selected_limpo %>% 
+    select("ID_PROVA_BRASIL", "ID_ESCOLA", "IN_PUBLICA", "ID_LOCALIZACAO", "ID_TURMA", "ID_SERIE",
+           "ID_ALUNO", "IN_PREENCHIMENTO_PROVA", "PROFICIENCIA_LP", "PROFICIENCIA_LP_SAEB",
+           "PROFICIENCIA_MT", "PROFICIENCIA_MT_SAEB", "IN_PREENCHIMENTO_QUESTIONARIO",
+           "ESC_MAE", "ESC_PAI", "HORAS_LAZER", "HORAS_TRABALHO_DOMESTICO","VIDEOCASSETE_DVD", "BANHEIRO",
+           "IDADE", "MORA_MAE", "MORA_PAI", "RACA", "CARRO", "SEXO", "TRABALHA", "COMPUTADOR",
+           "GELADEIRA", "MAQUINA_LAVAR", "N_PESSOAS_CASA", "N_QUARTOS", "TV", "FREEZER_JUNTO", 
+           "FREEZER_SEP", "ENTRADA_ESCOLA", "REPROVACAO", "LE_PAI", "LE_MAE","LICAO_LP", "LICAO_MAT"),
+  EF5_2017_cut_selected_limpo %>% 
+    select("ID_PROVA_BRASIL", "ID_ESCOLA", "IN_PUBLICA", "ID_LOCALIZACAO", "ID_TURMA", "ID_SERIE",
+           "ID_ALUNO", "IN_PREENCHIMENTO_PROVA", "PROFICIENCIA_LP", "PROFICIENCIA_LP_SAEB",
+           "PROFICIENCIA_MT", "PROFICIENCIA_MT_SAEB", "IN_PREENCHIMENTO_QUESTIONARIO",
+           "ESC_MAE", "ESC_PAI", "HORAS_LAZER", "VIDEOCASSETE_DVD", "HORAS_TRABALHO_DOMESTICO", "BANHEIRO",
+           "IDADE", "MORA_MAE", "MORA_PAI", "RACA", "CARRO", "SEXO", "TRABALHA", "COMPUTADOR",
+           "GELADEIRA", "MAQUINA_LAVAR", "N_PESSOAS_CASA", "N_QUARTOS", "TV", "FREEZER_JUNTO", 
+           "FREEZER_SEP","ENTRADA_ESCOLA", "REPROVACAO", "LE_PAI", "LE_MAE","LICAO_LP", "LICAO_MAT"),
+) %>%
+  mutate(across(where(is.character), ~na_if(.x, ""))) %>%
+  filter(IN_PREENCHIMENTO_QUESTIONARIO == 1 & IN_PREENCHIMENTO_PROVA == 1) %>%
+  left_join(schools_5ano, by = c("ID_PROVA_BRASIL", "ID_ESCOLA"))
+
+
+
+# Binding 9th grade
+
+geral_9ano <- bind_rows(
+  EF9_2013_cut_selected_limpo %>% 
+    select("ID_PROVA_BRASIL", "ID_ESCOLA", "IN_PUBLICA", "ID_LOCALIZACAO", "ID_TURMA", "ID_SERIE",
+           "ID_ALUNO", "IN_PREENCHIMENTO_PROVA", "PROFICIENCIA_LP", "PROFICIENCIA_LP_SAEB",
+           "PROFICIENCIA_MT", "PROFICIENCIA_MT_SAEB", "IN_PREENCHIMENTO_QUESTIONARIO",
+           "ESC_MAE", "ESC_PAI", "HORAS_LAZER", "HORAS_TRABALHO_DOMESTICO", "BANHEIRO",
+           "IDADE", "MORA_MAE", "MORA_PAI", "RACA", "CARRO", "SEXO", "TRABALHA", "COMPUTADOR",
+           "GELADEIRA", "MAQUINA_LAVAR", "VIDEOCASSETE_DVD","N_PESSOAS_CASA", "N_QUARTOS", "TV", "FREEZER_JUNTO", 
+           "FREEZER_SEP","ENTRADA_ESCOLA", "REPROVACAO", "LE_PAI", "LE_MAE","LICAO_LP", "LICAO_MAT"),
+  EF9_2015_cut_selected_limpo %>% 
+    select("ID_PROVA_BRASIL", "ID_ESCOLA", "IN_PUBLICA", "ID_LOCALIZACAO", "ID_TURMA", "ID_SERIE",
+           "ID_ALUNO", "IN_PREENCHIMENTO_PROVA", "PROFICIENCIA_LP", "PROFICIENCIA_LP_SAEB",
+           "PROFICIENCIA_MT", "PROFICIENCIA_MT_SAEB", "IN_PREENCHIMENTO_QUESTIONARIO",
+           "ESC_MAE", "ESC_PAI", "HORAS_LAZER", "HORAS_TRABALHO_DOMESTICO", "BANHEIRO",
+           "IDADE", "MORA_MAE", "MORA_PAI", "RACA", "CARRO", "SEXO", "TRABALHA", "COMPUTADOR",
+           "GELADEIRA", "MAQUINA_LAVAR","VIDEOCASSETE_DVD", "N_PESSOAS_CASA", "N_QUARTOS", "TV", "FREEZER_JUNTO", 
+           "FREEZER_SEP", "ENTRADA_ESCOLA", "REPROVACAO", "LE_PAI", "LE_MAE","LICAO_LP", "LICAO_MAT"),
+  EF9_2017_cut_selected_limpo %>% 
+    select("ID_PROVA_BRASIL", "ID_ESCOLA", "IN_PUBLICA", "ID_LOCALIZACAO", "ID_TURMA", "ID_SERIE",
+           "ID_ALUNO", "IN_PREENCHIMENTO_PROVA", "PROFICIENCIA_LP", "PROFICIENCIA_LP_SAEB",
+           "PROFICIENCIA_MT", "PROFICIENCIA_MT_SAEB", "IN_PREENCHIMENTO_QUESTIONARIO",
+           "ESC_MAE", "ESC_PAI", "HORAS_LAZER", "HORAS_TRABALHO_DOMESTICO", "BANHEIRO",
+           "IDADE", "MORA_MAE", "MORA_PAI", "RACA", "CARRO", "SEXO", "TRABALHA", "COMPUTADOR",
+           "GELADEIRA", "MAQUINA_LAVAR","VIDEOCASSETE_DVD", "N_PESSOAS_CASA", "N_QUARTOS", "TV", "FREEZER_JUNTO", 
+           "FREEZER_SEP", "ENTRADA_ESCOLA", "REPROVACAO", "LE_PAI", "LE_MAE","LICAO_LP", "LICAO_MAT"),
+)%>%
+  mutate(across(where(is.character), ~na_if(.x, "")))%>%
+  filter(IN_PREENCHIMENTO_QUESTIONARIO == 1 & IN_PREENCHIMENTO_PROVA == 1) %>%
+  left_join(schools_9ano, by = c("ID_PROVA_BRASIL", "ID_ESCOLA"))
+
+library(tidyr)
+library(ggplot2)
+library(gridExtra)
+library(patchwork)
+
+### DIFFERENCE IN THE NUMBER OF HORAS_TRABALHO_DOMESTICO PER GENDER
+
+calculate_gender_percentages <- function(df, grade) {
+  clean_df <- df %>%
+    filter(!is.na(SEXO), !is.na(HORAS_TRABALHO_DOMESTICO), !is.na(ID_PROVA_BRASIL),
+           !is.na(IN_PREENCHIMENTO_PROVA), !is.na(IN_PREENCHIMENTO_QUESTIONARIO))
+  
+  counts <- clean_df %>%
+    group_by(ID_PROVA_BRASIL, SEXO, HORAS_TRABALHO_DOMESTICO) %>%
+    summarise(Count = n(), .groups = 'drop') %>%
+    mutate(Grade = grade)
+  
+  percentages <- counts %>%
+    group_by(ID_PROVA_BRASIL, SEXO) %>%
+    mutate(Percentage = Count / sum(Count) * 100) %>%
+    ungroup()
+  
+  return(list(counts = counts, percentages = percentages))
+}
+
+
+results_5ano <- calculate_gender_percentages(geral_5ano, "5ano")
+results_9ano <- calculate_gender_percentages(geral_9ano, "9ano")
+
+combined_counts <- bind_rows(results_5ano$counts, results_9ano$counts)
+
+combined_geral <- bind_rows(
+  results_5ano$percentages, 
+  results_9ano$percentages
+)
+
+counts_9ano <- combined_geral %>%
+  filter(Grade == "9ano") %>%
+  select(ID_PROVA_BRASIL, SEXO, HORAS_TRABALHO_DOMESTICO, Count)%>%
+  group_by(SEXO, HORAS_TRABALHO_DOMESTICO) %>%
+  summarise(Count = sum(Count))%>%
+  pivot_wider(names_from = HORAS_TRABALHO_DOMESTICO, values_from = Count)
+
+counts_5ano <- combined_geral %>%
+  filter(Grade == "5ano") %>%
+  select(ID_PROVA_BRASIL, SEXO, HORAS_TRABALHO_DOMESTICO, Count)%>%
+  group_by(SEXO, HORAS_TRABALHO_DOMESTICO) %>%
+  summarise(Count = sum(Count))%>%
+  pivot_wider(names_from = HORAS_TRABALHO_DOMESTICO, values_from = Count)
+
+
+
+## Chi-squared
+#5 ano
+
+counts_5ano$SEXO <- as.factor(counts_5ano$SEXO)
+contingency_table_5ano <- as.matrix(counts_5ano[,-1]) 
+chisq_test_5ano <- chisq.test(contingency_table_5ano)
+chisq_test_5ano
+
+#9 ano
+
+counts_9ano$SEXO <- as.factor(counts_9ano$SEXO)
+contingency_table_9ano <- as.matrix(counts_9ano[,-1])  
+chisq_test_9ano <- chisq.test(contingency_table_9ano)
+chisq_test_9ano
+
+
+#### DIFFERENCE IN STUDENT ACHIEVEMENT
+
+geral_5ano <- geral_5ano %>% mutate(Year_Group = '5ano')
+geral_9ano <- geral_9ano %>% mutate(Year_Group = '9ano')
+
+
+mean_scores <- bind_rows(geral_5ano, geral_9ano) %>%
+  filter(!is.na(SEXO), !is.na(ID_PROVA_BRASIL),
+         !is.na(PROFICIENCIA_LP_SAEB), !is.na(PROFICIENCIA_MT_SAEB)) %>%
+  group_by(ID_PROVA_BRASIL, SEXO, Year_Group) %>%
+  summarise(
+    Mean_PROFICIENCIA_LP_SAEB = mean(PROFICIENCIA_LP_SAEB, na.rm = TRUE),
+    Mean_PROFICIENCIA_MT_SAEB = mean(PROFICIENCIA_MT_SAEB, na.rm = TRUE),
+    .groups = 'drop'
+  )
+
+
+final_table <- mean_scores %>%
+  pivot_wider(
+    id_cols = ID_PROVA_BRASIL,
+    names_from = c(SEXO, Year_Group),
+    values_from = c(Mean_PROFICIENCIA_LP_SAEB, Mean_PROFICIENCIA_MT_SAEB),
+    names_glue = "{SEXO}_{.value}_{Year_Group}"
+  )%>%
+  select(
+    ID_PROVA_BRASIL,
+    Female_Mean_PROFICIENCIA_LP_SAEB_5ano, Male_Mean_PROFICIENCIA_LP_SAEB_5ano,
+    Female_Mean_PROFICIENCIA_MT_SAEB_5ano, Male_Mean_PROFICIENCIA_MT_SAEB_5ano,
+    Female_Mean_PROFICIENCIA_LP_SAEB_9ano, Male_Mean_PROFICIENCIA_LP_SAEB_9ano,
+    Female_Mean_PROFICIENCIA_MT_SAEB_9ano, Male_Mean_PROFICIENCIA_MT_SAEB_9ano
+  )
+
+
+
+
+
+### SHARE OF HOUSEHOLD CHORES BOYS X GIRLS PER YEAR
+
+# 5 GRADE
+combined_geral %>%
+  filter(Grade == "5ano") %>%
+  filter(HORAS_TRABALHO_DOMESTICO == "> 3 hours") %>%
+  ggplot(aes(x = ID_PROVA_BRASIL, y = Percentage, color = SEXO, group = SEXO)) +
+  geom_line() +
+  geom_point() +
+  geom_text(aes(label = paste0(round(Percentage, 1), "%")), 
+            position = position_nudge(y = 0.5),
+            check_overlap = TRUE, 
+            size = 3) +
+  theme_minimal() +
+  labs(title = "5th grade: Percentage of students who spend over 2 hours
+       a day with domestic chores, by gender",
+       x = "Year",
+       y = "Percentage") +
+  scale_x_continuous(breaks = combined_geral$ID_PROVA_BRASIL) +
+  scale_color_manual(labels = c("Boys", "Girls"), values = c("Male" = "turquoise4", "Female" = "plum3"))
+
+
+# 9 GRADE
+
+combined_geral %>%
+  filter(Grade == "9ano") %>%
+  filter(HORAS_TRABALHO_DOMESTICO == "> 3 hours") %>%
+  ggplot(aes(x = ID_PROVA_BRASIL, y = Percentage, color = SEXO, group = SEXO)) +
+  geom_line() +
+  geom_point() +
+  geom_text(aes(label = paste0(round(Percentage, 1), "%")), 
+            position = position_nudge(y = 0.5), # adjust nudge for better positioning
+            check_overlap = TRUE, # to avoid overplotting
+            size = 3) +
+  theme_minimal() +
+  labs(title = "9th grade: Percentage of students who spend over 3 hours
+       a day with domestic chores, by gender",
+       x = "Year",
+       y = "Percentage") +
+  scale_x_continuous(breaks = combined_geral$ID_PROVA_BRASIL) +
+  scale_color_manual(labels = c("Boys", "Girls"), values = c("Male" = "turquoise4", "Female" = "plum3"))
+
+##### SHARE OF DOMESTIC CHORES
+
+combined_geral$HORAS_TRABALHO_DOMESTICO <- factor(combined_geral$HORAS_TRABALHO_DOMESTICO, 
+                                                  levels = c("I don't spend my time with this", "< 1 hour", "1 - 2 hours", 
+                                                             "2 - 3 hours", "> 3 hours"))
+# 5 GRADE
+
+combined_geral %>%
+  filter(Grade == "5ano") %>%
+  ggplot(aes(x = SEXO, y = Percentage, fill = HORAS_TRABALHO_DOMESTICO)) +
+  geom_bar(stat = "identity", position = "fill") +
+  geom_text(aes(label = sprintf("%1.1f%%", Percentage), y = Percentage), 
+            position = position_fill(v = 0.5), color = "white") +
+  facet_wrap(~ID_PROVA_BRASIL, ncol = 1) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  scale_fill_manual(name = "Hours spent with house chores per day", 
+                    labels = c("I don't spend my  time with this", "< 1h", "1 - 2 hours", "2 - 3 hours", "> 3 hours"),
+                    values = c("I don't spend my time with this" = "#b0e783", "< 1 hour" = "lightskyblue2", 
+                               "1 - 2 hours" = "#e6c55a", "2 - 3 hours" = "#e9772e",
+                               "> 3 hours" = "#e21b36")) +
+  labs(title = "5th Grade: Percentage by Gender and Domestic Work Category over Years",
+       x = "Sex",
+       y = "Percentage",
+       fill = "Hours spent with house chores per day") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+# 9 GRADE
+
+combined_geral %>%
+  filter(Grade == "9ano") %>%
+  ggplot(aes(x = SEXO, y = Percentage, fill = HORAS_TRABALHO_DOMESTICO)) +
+  geom_bar(stat = "identity", position = "fill") +
+  geom_text(aes(label = sprintf("%1.1f%%", Percentage), y = Percentage), 
+            position = position_fill(v = 0.5), color = "white") +
+  facet_wrap(~ID_PROVA_BRASIL, ncol = 1) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  scale_fill_manual(name = "Hours spent with house chores per day", 
+                    labels = c("I don't spend my  time with this", "< 1h", "1 - 2 hours", "2 - 3 hours", "> 3 hours"),
+                    values = c("I don't spend my time with this" = "#b0e783", "< 1 hour" = "lightskyblue2", 
+                               "1 - 2 hours" = "#e6c55a", "2 - 3 hours" = "#e9772e",
+                               "> 3 hours" = "#e21b36")) +
+  labs(title = "9th Grade: Percentage by Gender and Domestic Work Category over Years",
+       x = "Sex",
+       y = "Percentage",
+       fill = "Hours spent with house chores per day") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+           
+
+### MEAN PROFICIENCY PER GENDER
+# 5 GRADE
+
+y_limits_5ano <- mean_scores %>%
+  filter(Year_Group == "5ano") %>%
+  summarise(
+    min_value = min(Mean_PROFICIENCIA_LP_SAEB, Mean_PROFICIENCIA_MT_SAEB, na.rm = TRUE),
+    max_value = max(Mean_PROFICIENCIA_LP_SAEB, Mean_PROFICIENCIA_MT_SAEB, na.rm = TRUE)
+  ) %>%
+  unlist() %>%
+  range()
+
+p1_5ano <- mean_scores %>%
+  filter(Year_Group == "5ano") %>%
+  ggplot(aes(x = ID_PROVA_BRASIL, y = Mean_PROFICIENCIA_LP_SAEB, color = SEXO, group = SEXO)) +
+  geom_line(size = 1) +
+  geom_point() +
+  geom_text(aes(label = paste0(round(Mean_PROFICIENCIA_LP_SAEB, 1))), 
+            position = position_nudge(y = 0.5), 
+            check_overlap = TRUE, 
+            size = 4) +
+  theme_minimal() +
+  labs(
+    x = "Year",
+    y = "Proficiency in Portuguese",
+    color = "Gender") +
+  scale_x_continuous(breaks = mean_scores$ID_PROVA_BRASIL) +
+  scale_color_manual(labels = c("Girls", "Boys"), 
+                     values = c("Male" = "turquoise4", "Female" = "plum3")) +
+  theme(
+    text = element_text(size = 12), 
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12), 
+    legend.title = element_text(size = 18), 
+    legend.text = element_text(size = 12) 
+  )+
+  ylim(y_limits_5ano)
+
+# Second plot for Mathematics Proficiency
+p2_5ano <- mean_scores %>%
+  filter(Year_Group == "5ano") %>%
+  ggplot(aes(x = ID_PROVA_BRASIL, y = Mean_PROFICIENCIA_MT_SAEB, color = SEXO, group = SEXO)) +
+  geom_line(size = 1) +
+  geom_point() +
+  geom_text(aes(label = paste0(round(Mean_PROFICIENCIA_MT_SAEB, 1))), 
+            position = position_nudge(y = 0.5), 
+            check_overlap = TRUE, 
+            size = 4) +
+  theme_minimal() +
+  labs(
+    x = "Year",
+    y = "Proficiency in Mathematics",
+    color = "Gender") +
+  scale_x_continuous(breaks = mean_scores$ID_PROVA_BRASIL) +
+  scale_color_manual(labels = c("Girls", "Boys"), 
+                     values = c("Male" = "turquoise4", "Female" = "plum3")) +
+  theme(
+    text = element_text(size = 12), 
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12), 
+    legend.title = element_text(size = 18), 
+    legend.text = element_text(size = 12) 
+  )+
+  ylim(y_limits_5ano)
+
+
+combined_plot_5ano <- p1_5ano + p2_5ano + plot_layout(guides = "collect")
+
+
+print(combined_plot_5ano)
+
+# 9 GRADE
+y_limits_9ano <- mean_scores %>%
+  filter(Year_Group == "9ano") %>%
+  summarise(
+    min_value = min(Mean_PROFICIENCIA_LP_SAEB, Mean_PROFICIENCIA_MT_SAEB, na.rm = TRUE),
+    max_value = max(Mean_PROFICIENCIA_LP_SAEB, Mean_PROFICIENCIA_MT_SAEB, na.rm = TRUE)
+  ) %>%
+  unlist() %>%
+  range()
+
+p1_9ano <- mean_scores %>%
+  filter(Year_Group == "9ano") %>%
+  ggplot(aes(x = ID_PROVA_BRASIL, y = Mean_PROFICIENCIA_LP_SAEB, color = SEXO, group = SEXO)) +
+  geom_line(size = 1) +
+  geom_point() +
+  geom_text(aes(label = paste0(round(Mean_PROFICIENCIA_LP_SAEB, 1))), 
+            position = position_nudge(y = 0.5), 
+            check_overlap = TRUE, 
+            size = 4) +
+  theme_minimal() +
+  labs(
+    x = "Year",
+    y = "Proficiency in Portuguese",
+    color = "Gender") +
+  scale_x_continuous(breaks = mean_scores$ID_PROVA_BRASIL) +
+  scale_color_manual(labels = c("Girls", "Boys"), 
+                     values = c("Male" = "turquoise4", "Female" = "plum3")) +
+  theme(
+    text = element_text(size = 12), 
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12), 
+    legend.title = element_text(size = 18), 
+    legend.text = element_text(size = 12) 
+  )+
+  ylim(y_limits_9ano)
+
+
+p2_9ano <- mean_scores %>%
+  filter(Year_Group == "9ano") %>%
+  ggplot(aes(x = ID_PROVA_BRASIL, y = Mean_PROFICIENCIA_MT_SAEB, color = SEXO, group = SEXO)) +
+  geom_line(size = 1) +
+  geom_point() +
+  geom_text(aes(label = paste0(round(Mean_PROFICIENCIA_MT_SAEB, 1))), 
+            position = position_nudge(y = 0.5), 
+            check_overlap = TRUE, 
+            size = 4) +
+  theme_minimal() +
+  labs(
+    x = "Year",
+    y = "Proficiency in Mathematics",
+    color = "Gender") +
+  scale_x_continuous(breaks = mean_scores$ID_PROVA_BRASIL) +
+  scale_color_manual(labels = c("Girls", "Boys"), 
+                     values = c("Male" = "turquoise4", "Female" = "plum3")) +
+  theme(
+    text = element_text(size = 12), 
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12), 
+    legend.title = element_text(size = 18), 
+    legend.text = element_text(size = 12) 
+  )+
+  ylim(y_limits_9ano)
+
+
+combined_plot_9ano <- p1_9ano + p2_9ano + plot_layout(guides = "collect")
+combined_plot_9ano
+
+library(corrplot)
+library(factoextra)
+library(magrittr)
+library(stargazer)
+
+
+
+## Assigning numeric values to socioeconomic variables
+# 5 GRADE
+
+geral_5ano_numeric <- geral_5ano %>%
+  mutate(
+    BANHEIRO = case_when(
+      BANHEIRO == "A" ~ 0,
+      BANHEIRO == "B" ~ 1,
+      BANHEIRO == "C" ~ 2,
+      BANHEIRO == "D" ~ 3,
+      BANHEIRO == "E" ~ 4
+    ),
+    CARRO = case_when(
+      CARRO == "A" ~ 0,
+      CARRO == "B" ~ 1,
+      CARRO == "C" ~ 2,
+      CARRO == "D" ~ 3, 
+      CARRO == "E" ~ 4
+    ),
+    TV = case_when(
+      TV == "A" ~ 0,
+      TV == "B" ~ 1,
+      TV == "C" ~ 2,
+      TV == "D" ~ 3,
+      TV == "E" ~ 4
+    ),
+    GELADEIRA = case_when(
+      GELADEIRA == "A" ~ 0,
+      GELADEIRA == "B" ~ 1,
+      GELADEIRA == "C" ~ 2,
+      GELADEIRA == "D" ~ 3, 
+      GELADEIRA == "E" ~ 4
+    ),
+    MAQUINA_LAVAR = case_when(
+      MAQUINA_LAVAR == "A" ~ 0,
+      MAQUINA_LAVAR == "B" ~ 1, 
+      MAQUINA_LAVAR == "C" ~ 2,
+      MAQUINA_LAVAR == "D" ~ 3, 
+      MAQUINA_LAVAR == "E" ~ 4
+    ),
+    N_QUARTOS = case_when(
+      N_QUARTOS == "A" ~ 0,
+      N_QUARTOS == "B" ~ 1,
+      N_QUARTOS == "C" ~ 2,
+      N_QUARTOS == "D" ~ 3,
+      N_QUARTOS == "E" ~ 4
+    ),
+    COMPUTADOR = case_when(
+      COMPUTADOR == "A" ~ 0,
+      COMPUTADOR == "B" ~ 1,
+      COMPUTADOR == "C" ~ 2,
+      COMPUTADOR == "D" ~ 3,
+      COMPUTADOR == "E" ~ 4
+    ),
+    FREEZER_SEP = case_when(
+      FREEZER_SEP == "A" ~ 0,
+      FREEZER_SEP == "B" ~ 1,
+      FREEZER_SEP == "C" ~ 2,
+      FREEZER_SEP == "D" ~ 3,
+      FREEZER_SEP == "E" ~ 4
+    ),
+    VIDEOCASSETE_DVD = case_when(
+      VIDEOCASSETE_DVD == "A" ~ 0,
+      VIDEOCASSETE_DVD == "B" ~ 1,
+      VIDEOCASSETE_DVD == "C" ~ 2,
+      VIDEOCASSETE_DVD == "D" ~ 3,
+      VIDEOCASSETE_DVD == "E" ~ 4
+    )
+  ) %>%
+  select(ID_ALUNO, BANHEIRO, CARRO, TV, 
+         GELADEIRA, MAQUINA_LAVAR, N_QUARTOS, 
+         COMPUTADOR, FREEZER_SEP, VIDEOCASSETE_DVD
+  ) %>%
+  na.omit()
+
+
+pca_result_5ano <- geral_5ano_numeric %>%
+  select(-ID_ALUNO) %>%
+  {princomp(., cor = TRUE)}
+
+cor_matrix_5ano <- geral_5ano_numeric %>%
+  select(-ID_ALUNO) %>%
+  cor(use = "complete.obs") 
+
+
+eigen_values_5ano <- eigen(cor_matrix_5ano)
+
+corrplot(cor_matrix_5ano, method = "circle", type = "upper", 
+         tl.col = "black", tl.srt = 45, 
+         title = "Correlation Matrix", 
+         diag = FALSE)
+
+summary(pca_result_5ano)
+
+plot(pca_result_5ano$sdev, type = "b", main = "Scree Plot",
+     xlab = "Principal Component", ylab = "Standard Deviation")
+
+abline(h = 1, col = "red", lty = 2)
+
+loadings_5ano <- pca_result_5ano$loadings
+loadings_5ano
+
+# mantain only component 1
+
+weights_5ano <- pca_result_5ano$sdev[1] ^ 2 %>% 
+  `/`(sum(pca_result_5ano$sdev ^ 2))
+
+
+ses_scores_5ano <- pca_result_5ano$scores[, 1] %*% matrix(weights_5ano, ncol = 1)
+
+ses_data_5ano <- data.frame(
+  ID_ALUNO = geral_5ano_numeric$ID_ALUNO,
+  SES_Index = as.vector(ses_scores_5ano)
+)
+
+geral_5ano_com_ses <- left_join(geral_5ano, ses_data_5ano, by = "ID_ALUNO") 
+
+
+# 9 GRADE
+
+geral_9ano_numeric <- geral_9ano %>%
+  mutate(
+    BANHEIRO = case_when(
+      BANHEIRO == "A" ~ 0,
+      BANHEIRO == "B" ~ 1,
+      BANHEIRO == "C" ~ 2,
+      BANHEIRO == "D" ~ 3,
+      BANHEIRO == "E" ~ 4
+    ),
+    CARRO = case_when(
+      CARRO == "A" ~ 0,
+      CARRO == "B" ~ 1,
+      CARRO == "C" ~ 2,
+      CARRO == "D" ~ 3, 
+      CARRO == "E" ~ 4
+    ),
+    TV = case_when(
+      TV == "A" ~ 0,
+      TV == "B" ~ 1,
+      TV == "C" ~ 2,
+      TV == "D" ~ 3,
+      TV == "E" ~ 4
+    ),
+    GELADEIRA = case_when(
+      GELADEIRA == "A" ~ 0,
+      GELADEIRA == "B" ~ 1,
+      GELADEIRA == "C" ~ 2,
+      GELADEIRA == "D" ~ 3, 
+      GELADEIRA == "E" ~ 4
+    ),
+    MAQUINA_LAVAR = case_when(
+      MAQUINA_LAVAR == "A" ~ 0,
+      MAQUINA_LAVAR == "B" ~ 1, 
+      MAQUINA_LAVAR == "C" ~ 2,
+      MAQUINA_LAVAR == "D" ~ 3, 
+      MAQUINA_LAVAR == "E" ~ 4
+    ),
+    N_QUARTOS = case_when(
+      N_QUARTOS == "A" ~ 0,
+      N_QUARTOS == "B" ~ 1,
+      N_QUARTOS == "C" ~ 2,
+      N_QUARTOS == "D" ~ 3,
+      N_QUARTOS == "E" ~ 4
+    ),
+    COMPUTADOR = case_when(
+      COMPUTADOR == "A" ~ 0,
+      COMPUTADOR == "B" ~ 1,
+      COMPUTADOR == "C" ~ 2,
+      COMPUTADOR == "D" ~ 3,
+      COMPUTADOR == "E" ~ 4
+    ),
+    FREEZER_SEP = case_when(
+      FREEZER_SEP == "A" ~ 0,
+      FREEZER_SEP == "B" ~ 1,
+      FREEZER_SEP == "C" ~ 2,
+      FREEZER_SEP == "D" ~ 3,
+      FREEZER_SEP == "E" ~ 4
+    ),
+    VIDEOCASSETE_DVD = case_when(
+      VIDEOCASSETE_DVD == "A" ~ 0,
+      VIDEOCASSETE_DVD == "B" ~ 1,
+      VIDEOCASSETE_DVD == "C" ~ 2,
+      VIDEOCASSETE_DVD == "D" ~ 3,
+      VIDEOCASSETE_DVD == "E" ~ 4
+    )
+  ) %>%
+  select(ID_ALUNO, BANHEIRO, CARRO, TV, 
+         GELADEIRA, MAQUINA_LAVAR, N_QUARTOS, 
+         COMPUTADOR, VIDEOCASSETE_DVD, FREEZER_SEP
+  ) %>%
+  na.omit()
+
+
+
+# Perform PCA
+
+
+pca_result_9ano <- geral_9ano_numeric %>%
+  select(-ID_ALUNO) %>%
+  {princomp(., cor = TRUE)}
+
+cor_matrix_9ano <- cor(geral_9ano_numeric, use = "complete.obs")  
+
+
+eigen_values_9ano <- eigen(cor_matrix_9ano)
+
+corrplot(cor_matrix_9ano, method = "circle", type = "upper", 
+         tl.col = "black", tl.srt = 45, 
+         title = "Correlation Matrix", 
+         diag = FALSE)
+
+summary(pca_result_9ano)
+
+plot(pca_result_9ano$sdev, type = "b", main = "Scree Plot",
+     xlab = "Principal Component", ylab = "Standard Deviation")
+
+abline(h = 1, col = "red", lty = 2)
+
+loadings_9ano <- pca_result_9ano$loadings
+loadings_9ano
+
+# mantain only components 1 
+
+weights_9ano <- pca_result_9ano$sdev[1] ^ 2 %>% 
+  `/`(sum(pca_result_9ano$sdev ^ 2))
+
+
+ses_scores_9ano <- pca_result_9ano$scores[, 1] %*% matrix(weights_9ano, ncol = 1)
+
+# Create a data frame with ID_ALUNO and SES_Index
+ses_data_9ano <- data.frame(
+  ID_ALUNO = geral_9ano_numeric$ID_ALUNO,
+  SES_Index = as.vector(ses_scores_9ano)
+)
+
+
+geral_9ano_com_ses <- left_join(geral_9ano, ses_data_9ano, by = "ID_ALUNO")
+
+#### Input within school median SES for NAs
+
+geral_5ano_com_ses <- geral_5ano_com_ses %>%
+  group_by(ID_ESCOLA) %>%
+  mutate(
+    SES_Index_median_calc = median(SES_Index, na.rm = TRUE),
+    SES_Index_median = ifelse(is.na(SES_Index), SES_Index_median_calc, SES_Index)
+  ) %>%
+  ungroup() 
+
+
+geral_9ano_com_ses <- geral_9ano_com_ses %>%
+  group_by(ID_ESCOLA) %>%
+  mutate(
+    SES_Index_median_calc = median(SES_Index, na.rm = TRUE),
+    SES_Index_median = ifelse(is.na(SES_Index), SES_Index_median_calc, SES_Index)
+  ) %>%
+  ungroup() 
+
+library(table1)
+library(gtsummary)
+library(gt)
+library(forcats)
+
+
+# TABLE 1: descriptive stats
+
+
+geral_5ano_com_ses <- geral_5ano_com_ses %>%
+  mutate(
+    keep = if_else(
+      is.na(SEXO) | 
+        is.na(HORAS_TRABALHO_DOMESTICO) |
+        is.na(ID_PROVA_BRASIL) |
+        is.na(RACA) | 
+        RACA == "No information" |
+        is.na(IDADE) |
+        is.na(LAB) |
+        is.na(LE_PAI) |
+        is.na(LE_MAE) |
+        is.na(TRABALHA) |
+        is.na(N_PESSOAS_CASA) |
+        is.na(PC_FORMACAO_DOCENTE) |
+        is.na(PROFICIENCIA_LP_SAEB),
+      "Drop", 
+      "Keep"
+    ),
+    keep_check = if_else(
+      is.na(SEXO) | 
+        is.na(HORAS_TRABALHO_DOMESTICO) |
+        is.na(ID_PROVA_BRASIL) |
+        is.na(RACA) | 
+        is.na(IDADE) |
+        is.na(LE_PAI) |
+        is.na(LAB) |
+        is.na(LE_MAE) |
+        is.na(TRABALHA) |
+        is.na(N_PESSOAS_CASA) |
+        is.na(PC_FORMACAO_DOCENTE) |
+        is.na(PROFICIENCIA_LP_SAEB),
+      "Drop", 
+      "Keep"
+    ))
+
+geral_9ano_com_ses <- geral_9ano_com_ses %>%
+  mutate(
+    keep = if_else(
+      is.na(SEXO) | 
+        is.na(HORAS_TRABALHO_DOMESTICO) |
+        is.na(ID_PROVA_BRASIL) |
+        is.na(RACA) | 
+        RACA == "No information" |
+        is.na(IDADE) |
+        is.na(LE_PAI) |
+        is.na(LAB) |
+        is.na(LE_MAE) |
+        is.na(TRABALHA) |
+        is.na(N_PESSOAS_CASA) |
+        is.na(PC_FORMACAO_DOCENTE) |
+        is.na(PROFICIENCIA_LP_SAEB),
+      "Drop", 
+      "Keep"
+    ),
+    keep_check = if_else(
+      is.na(SEXO) | 
+        is.na(HORAS_TRABALHO_DOMESTICO) |
+        is.na(ID_PROVA_BRASIL) |
+        is.na(RACA) | 
+        is.na(IDADE) |
+        is.na(LE_PAI) |
+        is.na(LAB) |
+        is.na(LE_MAE) |
+        is.na(TRABALHA) |
+        is.na(N_PESSOAS_CASA) |
+        is.na(PC_FORMACAO_DOCENTE) |
+        is.na(PROFICIENCIA_LP_SAEB),
+      "Drop", 
+      "Keep"
+    ))
+    
+## 5 grade
+
+geral_5ano_com_ses <- geral_5ano_com_ses %>%
+  mutate(
+    HORAS_LAZER = fct_relevel(HORAS_LAZER,
+                              "I don't spend my time with this",
+                              "< 1 hour",
+                              "1 - 2 hours",
+                              "2 - 3 hours",
+                              "> 3 hours"),
+    HORAS_TRABALHO_DOMESTICO = fct_relevel(HORAS_TRABALHO_DOMESTICO, 
+                                           "I don't spend my time with this",
+                                           "< 1 hour",
+                                           "1 - 2 hours",
+                                           "2 - 3 hours",
+                                           "> 3 hours"),
+    RACA = fct_relevel(RACA, 
+                       "White",
+                       "Black",
+                       "Mixed",
+                       "Yellow",
+                       "Indigenous",
+                       "No information")
+  )
+
+
+table_descriptive_5ano <- geral_5ano_com_ses %>%
+  select(ID_PROVA_BRASIL, PROFICIENCIA_LP_SAEB, PROFICIENCIA_MT_SAEB,
+         SEXO, RACA, HORAS_TRABALHO_DOMESTICO, LE_MAE, LE_PAI,
+         TRABALHA, IDADE, SES_Index_median,PC_FORMACAO_DOCENTE,N_PESSOAS_CASA, LAB, keep) %>%
+  tbl_summary(
+    by = keep, 
+    type = list(
+      PROFICIENCIA_LP_SAEB ~ "continuous",
+      PROFICIENCIA_MT_SAEB ~ "continuous",
+      SEXO ~ "categorical",
+      RACA ~ "categorical",
+      IDADE ~ "continuous",
+      HORAS_TRABALHO_DOMESTICO ~ "categorical",
+      TRABALHA ~ "categorical",
+      N_PESSOAS_CASA ~ "continuous",
+      SES_Index_median ~ "continuous", 
+      PC_FORMACAO_DOCENTE ~"continuous",
+      LAB ~ "categorical",
+      LE_MAE ~ "categorical",
+      LE_PAI ~ "categorical"
+    ),
+    statistic = list(
+      all_continuous() ~ "{mean}",  
+      all_categorical() ~ "{n} ({p}%)"
+    ), 
+    label = list(
+      PROFICIENCIA_LP_SAEB = "Proficiency Portuguese",
+      PROFICIENCIA_MT_SAEB = "Proficiency Mathematics",
+      SEXO = "Gender",
+      RACA = "Race",
+      LE_MAE = "Literacy Mother",
+      LE_PAI = "Literacy Father",
+      N_PESSOAS_CASA = "Mean number of people in the household",
+      IDADE = "Mean age",
+      LAB = "Percentage of students in schools with Computer Lab",
+      HORAS_TRABALHO_DOMESTICO = "Hours of Domestic Chores",
+      PC_FORMACAO_DOCENTE = "Weighted percentage of teachers with adequate qualification",
+      TRABALHA = "Works"
+    )
+  )
+
+# 9 ano
+
+geral_9ano_com_ses <- geral_9ano_com_ses %>%
+  mutate(
+    HORAS_TRABALHO_DOMESTICO = fct_relevel(HORAS_TRABALHO_DOMESTICO, 
+                                           "I don't spend my time with this",
+                                           "< 1 hour",
+                                           "1 - 2 hours",
+                                           "2 - 3 hours",
+                                           "> 3 hours"),
+    RACA = fct_relevel(RACA, 
+                       "White",
+                       "Black",
+                       "Mixed",
+                       "Yellow",
+                       "Indigenous",
+                       "No information")
+  )
+
+table_descriptive_9ano <- geral_9ano_com_ses %>%
+  select(ID_PROVA_BRASIL, PROFICIENCIA_LP_SAEB, PROFICIENCIA_MT_SAEB,
+         SEXO, RACA, HORAS_TRABALHO_DOMESTICO, LE_MAE, LE_PAI,
+         TRABALHA, IDADE, SES_Index_median,PC_FORMACAO_DOCENTE,N_PESSOAS_CASA, LAB, keep) %>%
+  tbl_summary(
+    by = keep, 
+    type = list(
+      PROFICIENCIA_LP_SAEB ~ "continuous",
+      PROFICIENCIA_MT_SAEB ~ "continuous",
+      SEXO ~ "categorical",
+      RACA ~ "categorical",
+      IDADE ~ "continuous",
+      N_PESSOAS_CASA ~ "continuous",
+      HORAS_TRABALHO_DOMESTICO ~ "categorical",
+      TRABALHA ~ "categorical",
+      LAB ~ "categorical",
+      SES_Index_median ~ "continuous", 
+      PC_FORMACAO_DOCENTE ~"continuous",
+      LE_MAE ~ "categorical",
+      LE_PAI ~ "categorical"
+    ),
+    statistic = list(
+      all_continuous() ~ "{mean}",  
+      all_categorical() ~ "{n} ({p}%)"
+    ), 
+    label = list(
+      PROFICIENCIA_LP_SAEB = "Proficiency Portuguese",
+      PROFICIENCIA_MT_SAEB = "Proficiency Mathematics",
+      SEXO = "Gender",
+      RACA = "Race",
+      LE_MAE = "Literacy Mother",
+      LE_PAI = "Literacy Father",
+      LAB = "Percentage of students in schools with Computer Lab",
+      N_PESSOAS_CASA = "Mean number of people in the household",
+      IDADE = "Mean age",
+      HORAS_TRABALHO_DOMESTICO = "Hours of Domestic Chores",
+      PC_FORMACAO_DOCENTE = "Weighted percentage of teachers with adequate qualification",
+      TRABALHA = "Works"
+    )
+  )
+
+
+table_descriptive_merged <- tbl_merge(
+  tbls = list(table_descriptive_5ano, table_descriptive_9ano),
+  tab_spanner = c("5th Grade", "9th Grade")
+)
+
+print(table_descriptive_merged)
+
+
+  library(table1)
+library(gtsummary)
+library(marginaleffects)
+library(margins)
+library(emmeans)
+library(stargazer)
+library(car)
+library(broom)
+library(modelsummary)
+library(purrr)
+library(knitr)
+
+### 5 GRADE
+
+geral_5ano_com_ses <- geral_5ano_com_ses %>%
+  mutate(
+    Z_LP = (PROFICIENCIA_LP_SAEB - mean(PROFICIENCIA_LP_SAEB, na.rm = TRUE)) / sd(PROFICIENCIA_LP_SAEB, na.rm = TRUE),
+    Z_MT = (PROFICIENCIA_MT_SAEB - mean(PROFICIENCIA_MT_SAEB, na.rm = TRUE)) / sd(PROFICIENCIA_MT_SAEB, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+### 9 GRADE
+
+geral_9ano_com_ses <- geral_9ano_com_ses %>%
+  mutate(
+    Z_LP = (PROFICIENCIA_LP_SAEB - mean(PROFICIENCIA_LP_SAEB, na.rm = TRUE)) / sd(PROFICIENCIA_LP_SAEB, na.rm = TRUE),
+    Z_MT = (PROFICIENCIA_MT_SAEB - mean(PROFICIENCIA_MT_SAEB, na.rm = TRUE)) / sd(PROFICIENCIA_MT_SAEB, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+
+sd_prof_lp_saeb_5ano <- sd(geral_5ano_com_ses$PROFICIENCIA_LP_SAEB, na.rm = TRUE)
+sd_prof_lp_saeb_9ano <- sd(geral_5ano_com_ses$PROFICIENCIA_MT_SAEB, na.rm = TRUE)
+sd_prof_mt_saeb_5ano <- sd(geral_9ano_com_ses$PROFICIENCIA_LP_SAEB, na.rm = TRUE)
+sd_prof_mt_saeb_9ano <- sd(geral_9ano_com_ses$PROFICIENCIA_MT_SAEB, na.rm = TRUE)
+
+
+
+### Models
+
+
+coef_map <- c(
+  "(Intercept)" = "Intercept",
+  "HORAS_TRABALHO_DOMESTICO< 1 hour" = "Domestic Work: <1 hour",
+  "HORAS_TRABALHO_DOMESTICO1 - 2 hours" = "Domestic Work: 1-2 hours",
+  "HORAS_TRABALHO_DOMESTICO2 - 3 hours" = "Domestic Work: 2-3 hours",
+  "HORAS_TRABALHO_DOMESTICO> 3 hours" = "Domestic Work: >3 hours",
+  "SEXOFemale" = "Gender: Female",
+  "SES_Index_median" = "Socioeconomic Status",
+  "SES_Index" = "Socioeconomic Status (without median imputation)",
+  "RACABlack" = "Race: Black",
+  "RACAMixed" = "Race: Mixed",
+  "RACAYellow" = "Race: Yellow",
+  "RACAIndigenous" = "Race: Indigenous",
+  "RACANo information" = "Race: No Information",
+  "IDADE" = "Age",
+  "SEXO" = "Gender",
+  "TRABALHA" = "Works",
+  "REPROVACAOYes, once" = "Retained once",
+  "REPROVACAOYes, twice or more" = "Retained twice or more",
+  "LE_PAI" = "Father literacy",
+  "LE_MAE" = "Mother literacy",
+  "N_PESSOAS_CASA" = "Number of people in the household",
+  "PC_FORMACAO_DOCENTE" = "Teachers qualification",
+  "LAB" = "Computer lab",
+  "ID_PROVA_BRASIL" = "Saeb edition",
+  "LICAO_LPAlways or almost always" = "Does homework: Always or almost always",
+  "LICAO_LPSometimes" = "Does homework: Sometimes",
+  "LICAO_LPNever or almost never" = "Does homework: Never or almost never",
+  "LICAO_LPThe teacher doesn't give us homework" = "Does homework: The teacher doesn't give us homework",
+  "LICAO_MATAlways or almost always" = "Does homework: Always or almost always",
+  "LICAO_MATSometimes" = "Does homework: Sometimes",
+  "LICAO_MATNever or almost never" = "Does homework: Never or almost never",
+  "LICAO_MAThe teacher doesn't give us homework" = "Does homework: The teacher doesn't give us homework",
+  "HORAS_TRABALHO_DOMESTICO< 1 hour:SEXOFemale" = "Domestic Work: <1 hour:Girls",
+  "HORAS_TRABALHO_DOMESTICO1 - 2 hours:SEXOFemale" = "Domestic Work: 1-2 hours:Girls",
+  "HORAS_TRABALHO_DOMESTICO2 - 3 hours:SEXOFemale" = "Domestic Work: 2-3 hours:Girls",
+  "HORAS_TRABALHO_DOMESTICO> 3 hours:SEXOFemale" = "Domestic Work: >3 hours:Girls"
+)
+
+
+## 5 GRADE
+
+geral_5ano_com_ses_keep <- geral_5ano_com_ses %>%
+  filter(keep == "Keep") %>%
+  mutate(HORAS_TRABALHO_DOMESTICO = relevel(factor(HORAS_TRABALHO_DOMESTICO), ref = "I don't spend my time with this"))%>%
+  mutate(SEXO = relevel(factor(SEXO), ref = "Male"))
+
+# Naive model:
+
+model1a <- lm(Z_LP ~ HORAS_TRABALHO_DOMESTICO+SEXO, data = geral_5ano_com_ses_keep)
+
+model1b <- lm(Z_MT ~ HORAS_TRABALHO_DOMESTICO+SEXO, data = geral_5ano_com_ses_keep)
+
+# Students' model:
+
+model2a <- lm(Z_LP ~ HORAS_TRABALHO_DOMESTICO + SEXO + SES_Index_median + 
+               RACA  + IDADE + LE_PAI + LE_MAE + TRABALHA + N_PESSOAS_CASA, data = geral_5ano_com_ses_keep)
+
+model2b <- lm(Z_MT ~ HORAS_TRABALHO_DOMESTICO + SEXO + SES_Index_median + 
+               RACA  + IDADE + LE_PAI + LE_MAE + TRABALHA+ N_PESSOAS_CASA, data = geral_5ano_com_ses_keep)
+
+# Students and schools model:
+
+model3a <- lm(Z_LP ~ HORAS_TRABALHO_DOMESTICO + SEXO + SES_Index_median + 
+                RACA  + IDADE + LE_PAI + LE_MAE + TRABALHA + N_PESSOAS_CASA + PC_FORMACAO_DOCENTE + LAB, data = geral_5ano_com_ses_keep)
+
+model3b <- lm(Z_MT ~ HORAS_TRABALHO_DOMESTICO + SEXO + SES_Index_median + 
+                RACA  + IDADE + LE_PAI + LE_MAE + TRABALHA + N_PESSOAS_CASA + PC_FORMACAO_DOCENTE + LAB, data = geral_5ano_com_ses_keep)
+
+
+# Complete model with interaction:
+
+model4a <- lm(Z_LP ~ HORAS_TRABALHO_DOMESTICO*SEXO + SES_Index_median + 
+                RACA  + IDADE +LE_PAI + LE_MAE + TRABALHA + PC_FORMACAO_DOCENTE + LAB  + N_PESSOAS_CASA, data = geral_5ano_com_ses_keep)
+
+model4b <- lm(Z_MT ~ HORAS_TRABALHO_DOMESTICO*SEXO+ SES_Index_median + 
+                RACA  + IDADE + LE_PAI + LE_MAE +TRABALHA + PC_FORMACAO_DOCENTE + LAB + N_PESSOAS_CASA , data = geral_5ano_com_ses_keep)
+
+
+models_5ano <- list(
+  "Model 1a: Portuguese" = model1a, 
+  "Model 1b: Mathematics" = model1b,
+  "Model 2a: Portuguese" = model2a, 
+  "Model 2b: Mathematics" = model2b, 
+  "Model 3a: Portuguese" = model3a, 
+  "Model 3b: Mathematics" = model3b,
+  "Model 4a: Portuguese" = model4a, 
+  "Model 4b: Mathematics" = model4b
+)
+
+
+modelsummary(models_5ano,
+             stars = c('*' = .1, '**' = .05, '***' = .01),
+             coef_map = coef_map,
+             gof_omit = "AIC|BIC|Log.Lik.|RMSE|F")
+
+
+
+vif_model2a <- vif(model2a)
+vif_model2b <- vif(model2b)
+vif_model3a <- vif(model3a)
+vif_model3b <- vif(model3b)
+vif_model4a <- vif(model4a, type = "predictor")
+vif_model4b <- vif(model4b, type = "predictor")
+
+# Display the VIF results
+vif_model2a
+vif_model2b
+vif_model3a
+vif_model3b
+vif_model4a
+vif_model4b
+
+
+
+
+## 9 GRADE
+
+
+geral_9ano_com_ses_keep <- geral_9ano_com_ses %>%
+  filter(keep == "Keep") %>%
+  mutate(HORAS_TRABALHO_DOMESTICO = relevel(factor(HORAS_TRABALHO_DOMESTICO), ref = "I don't spend my time with this"))%>%
+  mutate(SEXO = relevel(factor(SEXO), ref = "Male"))
+
+# Naive model:
+
+model5a <- lm(Z_LP ~ HORAS_TRABALHO_DOMESTICO + SEXO, data = geral_9ano_com_ses_keep)
+
+model5b <- lm(Z_MT ~ HORAS_TRABALHO_DOMESTICO + SEXO, data = geral_9ano_com_ses_keep)
+
+# Students' model:
+
+model6a <- lm(Z_LP ~ HORAS_TRABALHO_DOMESTICO + SEXO + SES_Index_median + 
+                RACA  + IDADE + LE_PAI + LE_MAE + TRABALHA + N_PESSOAS_CASA, data = geral_9ano_com_ses_keep)
+
+model6b <- lm(Z_MT ~ HORAS_TRABALHO_DOMESTICO + SEXO + SES_Index_median + 
+                RACA  + IDADE + LE_PAI + LE_MAE + TRABALHA+ N_PESSOAS_CASA, data = geral_9ano_com_ses_keep)
+
+# Students and schools model:
+
+model7a <- lm(Z_LP ~ HORAS_TRABALHO_DOMESTICO + SEXO + SES_Index_median + 
+                RACA  + IDADE + LE_PAI + LE_MAE + TRABALHA + PC_FORMACAO_DOCENTE + LAB + N_PESSOAS_CASA, data = geral_9ano_com_ses_keep)
+
+model7b <- lm(Z_MT ~ HORAS_TRABALHO_DOMESTICO + SEXO + SES_Index_median + 
+                RACA  + IDADE + LE_PAI + LE_MAE + TRABALHA + PC_FORMACAO_DOCENTE + LAB + N_PESSOAS_CASA, data = geral_9ano_com_ses_keep)
+
+
+# Complete model with interaction:
+
+model8a <- lm(Z_LP ~ HORAS_TRABALHO_DOMESTICO*SEXO + SES_Index_median + 
+                RACA  + IDADE +LE_PAI + LE_MAE + TRABALHA + PC_FORMACAO_DOCENTE + LAB  + N_PESSOAS_CASA, data = geral_9ano_com_ses_keep)
+
+model8b <- lm(Z_MT ~ HORAS_TRABALHO_DOMESTICO*SEXO+ SES_Index_median + 
+                RACA  + IDADE + LE_PAI + LE_MAE +TRABALHA + PC_FORMACAO_DOCENTE + LAB + N_PESSOAS_CASA , data = geral_9ano_com_ses_keep)
+
+
+models_9ano <- list(
+  "Model 5a: Portuguese" = model5a, 
+  "Model 5b: Mathematics" = model5b,
+  "Model 6a: Portuguese" = model6a, 
+  "Model 6b: Mathematics" = model6b, 
+  "Model 7a: Portuguese" = model7a, 
+  "Model 7b: Mathematics" = model7b,
+  "Model 8a: Portuguese" = model8a, 
+  "Model 8b: Mathematics" = model8b
+)
+
+
+modelsummary(models_9ano,
+             stars = c('*' = .1, '**' = .05, '***' = .01),
+             coef_map = coef_map,
+             gof_omit = "AIC|BIC|Log.Lik.|RMSE|F")
+
+
+vif_model6a <- vif(model6a)
+vif_model6b <- vif(model6b)
+vif_model7a <- vif(model7a)
+vif_model7b <- vif(model7b)
+vif_model8a <- vif(model8a,  type = "predictor")
+vif_model8b <- vif(model8b,  type = "predictor")
+
+
+vif_model6a
+vif_model6b
+vif_model7a
+vif_model7b
+vif_model8a
+vif_model8b
+
+
+
+### Model check
+## Race
+# 5 GRADE
+
+geral_5ano_com_ses_keep_check <- geral_5ano_com_ses %>%
+  filter(keep_check == "Keep") %>%
+  mutate(HORAS_TRABALHO_DOMESTICO = relevel(factor(HORAS_TRABALHO_DOMESTICO), ref = "I don't spend my time with this"))%>%
+  mutate(SEXO = relevel(factor(SEXO), ref = "Male"))
+
+model9a <- lm(Z_LP ~ HORAS_TRABALHO_DOMESTICO*SEXO+ SES_Index_median + 
+                 RACA  + IDADE + LE_PAI + LE_MAE +TRABALHA + PC_FORMACAO_DOCENTE + LAB+ N_PESSOAS_CASA, data = geral_5ano_com_ses_keep_check)
+
+model9b <- lm(Z_MT ~ HORAS_TRABALHO_DOMESTICO*SEXO+ SES_Index_median + 
+                 RACA  + IDADE + LE_PAI + LE_MAE +TRABALHA + PC_FORMACAO_DOCENTE + LAB+ N_PESSOAS_CASA, data = geral_5ano_com_ses_keep_check)
+
+
+# 9 GRADE
+
+# Complete model:
+
+geral_9ano_com_ses_keep_check <- geral_9ano_com_ses %>%
+  filter(keep_check == "Keep") %>%
+  mutate(HORAS_TRABALHO_DOMESTICO = relevel(factor(HORAS_TRABALHO_DOMESTICO), ref = "I don't spend my time with this"))%>%
+  mutate(SEXO = relevel(factor(SEXO), ref = "Male"))
+
+model10a <- lm(Z_LP ~ HORAS_TRABALHO_DOMESTICO*SEXO+ SES_Index_median + 
+                RACA  + IDADE + LE_PAI + LE_MAE +TRABALHA + PC_FORMACAO_DOCENTE + LAB+ N_PESSOAS_CASA, data = geral_9ano_com_ses_keep_check)
+
+model10b <- lm(Z_MT ~ HORAS_TRABALHO_DOMESTICO*SEXO+ SES_Index_median + 
+                RACA  + IDADE + LE_PAI + LE_MAE +TRABALHA + PC_FORMACAO_DOCENTE + LAB+ N_PESSOAS_CASA, data = geral_9ano_com_ses_keep_check)
+
+model_check_race <- list(
+  "5th grade: Portuguese" = model9a, 
+  "5th grade: Mathematics" = model9b,
+  "9th grade: Portuguese" = model10a, 
+  "9th grade: Mathematics" = model10b)
+
+modelsummary(model_check_race,
+             stars = c('*' = .1, '**' = .05, '***' = .01),
+             coef_map = coef_map,
+             gof_omit = "AIC|BIC|Log.Lik.|RMSE|F")
+
+## SES Index
+#5 GRADE
+
+model11a <- lm(Z_LP ~ HORAS_TRABALHO_DOMESTICO*SEXO+ SES_Index + 
+                RACA  + IDADE + LE_PAI + LE_MAE +TRABALHA + PC_FORMACAO_DOCENTE + LAB+ N_PESSOAS_CASA, data = geral_5ano_com_ses_keep)
+
+model11b <- lm(Z_MT ~ HORAS_TRABALHO_DOMESTICO*SEXO+ SES_Index + 
+                RACA  + IDADE + LE_PAI + LE_MAE +TRABALHA + PC_FORMACAO_DOCENTE + LAB+ N_PESSOAS_CASA, data = geral_5ano_com_ses_keep)
+
+
+#9 GRADE
+
+model12a <- lm(Z_LP ~ HORAS_TRABALHO_DOMESTICO*SEXO+ SES_Index + 
+                 RACA  + IDADE + LE_PAI + LE_MAE +TRABALHA + PC_FORMACAO_DOCENTE + LAB+ N_PESSOAS_CASA, data = geral_9ano_com_ses_keep)
+
+model12b <- lm(Z_MT ~ HORAS_TRABALHO_DOMESTICO*SEXO+ SES_Index + 
+                 RACA  + IDADE + LE_PAI + LE_MAE +TRABALHA + PC_FORMACAO_DOCENTE + LAB+ N_PESSOAS_CASA, data = geral_9ano_com_ses_keep)
+
+model_check_ses <- list(
+  "5th grade: Portuguese" = model11a, 
+  "5th grade: Mathematics" = model11b,
+  "9th grade: Portuguese" = model12a, 
+  "9th grade: Mathematics" = model12b)
+
+modelsummary(model_check_ses,
+             stars = c('*' = .1, '**' = .05, '***' = .01),
+             coef_map = coef_map,
+             gof_omit = "AIC|BIC|Log.Lik.|RMSE|F")
+
+library(stringr)
+library(sjPlot)
+library(sjmisc)
+library(ggplot2)
+library(tidyr)
+library(broom)
+
+
+new_labels <- c(
+  "HORAS_TRABALHO_DOMESTICO< 1 hour" = "<1 hour",
+  "HORAS_TRABALHO_DOMESTICO1 - 2 hours" = "1-2 hours",
+  "HORAS_TRABALHO_DOMESTICO2 - 3 hours" = "2-3 hours",
+  "HORAS_TRABALHO_DOMESTICO> 3 hours" = ">3 hours"
+)
+
+# 5th grade
+
+
+tidy_model4a <- tidy(model4a)
+tidy_model4b <- tidy(model4b)
+
+main_effects_4a_5ano <- tidy_model4a %>% 
+  filter(str_detect(term, "^HORAS_TRABALHO_DOMESTICO") & !str_detect(term, ":SEXO"))
+
+main_effects_4b_5ano <- tidy_model4b %>% 
+  filter(str_detect(term, "^HORAS_TRABALHO_DOMESTICO") & !str_detect(term, ":SEXO"))
+
+interactions_4a_5ano <- tidy_model4a %>% 
+  filter(str_detect(term, "^HORAS_TRABALHO_DOMESTICO") & str_detect(term, ":SEXO"))
+
+interactions_4b_5ano <- tidy_model4b %>% 
+  filter(str_detect(term, "^HORAS_TRABALHO_DOMESTICO") & str_detect(term, ":SEXO"))
+
+
+interactions_4a_5ano <- interactions_4a_5ano %>%
+  mutate(term_main_effect = str_replace(term, ":SEXOFemale", ""))
+
+total_effects_girls_4a_5ano <- interactions_4a_5ano %>%
+  left_join(main_effects_4a_5ano, by = c("term_main_effect" = "term")) %>%
+  mutate(estimate_total = estimate.x + estimate.y) %>%
+  select(term = term_main_effect, estimate = estimate_total, 
+         std.error = std.error.x, statistic = statistic.x, p.value = p.value.x)
+
+interactions_4b_5ano <- interactions_4b_5ano %>%
+  mutate(term_main_effect = str_replace(term, ":SEXOFemale", ""))
+
+total_effects_girls_4b_5ano <- interactions_4b_5ano %>%
+  left_join(main_effects_4b_5ano, by = c("term_main_effect" = "term")) %>%
+  mutate(estimate_total = estimate.x + estimate.y) %>%
+  select(term = term_main_effect, estimate = estimate_total, 
+         std.error = std.error.x, statistic = statistic.x, p.value = p.value.x)
+
+#COMBINING EFFECTS
+combined_effects_5ano <- bind_rows(
+  main_effects_4a_5ano %>% mutate(subject = "Portuguese", gender = "Boys"),
+  total_effects_girls_4a_5ano %>% mutate(subject = "Portuguese", gender = "Girls"),
+  main_effects_4b_5ano %>% mutate(subject = "Mathematics", gender = "Boys"),
+  total_effects_girls_4b_5ano %>% mutate(subject = "Mathematics", gender = "Girls")
+)
+
+combined_effects_5ano$term <- factor(combined_effects_5ano$term, levels = c(
+  "HORAS_TRABALHO_DOMESTICO< 1 hour",
+  "HORAS_TRABALHO_DOMESTICO1 - 2 hours",
+  "HORAS_TRABALHO_DOMESTICO2 - 3 hours",
+  "HORAS_TRABALHO_DOMESTICO> 3 hours"
+))
+
+ggplot(combined_effects_5ano, aes(x = term, y = estimate, color = gender)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error), width = 0.2) +
+  facet_wrap(~ subject, ncol = 1) +
+  scale_color_manual(values = c("Boys" = "turquoise4", "Girls" = "plum3")) +
+  theme_minimal() +
+  theme(strip.text.x = element_text(size = 12, face = "bold"),
+        strip.background = element_rect(fill = "grey", color = "white", size = 1),
+        legend.position = "bottom") +
+  labs(
+       x = "Hours of Domestic Chores",
+       y = "Coefficient Estimate",
+       color = "Gender") +
+  coord_flip() +
+  scale_x_discrete(labels = new_labels)
+
+
+# 9th grade
+
+
+tidy_model8a <- tidy(model8a)
+tidy_model8b <- tidy(model8b)
+
+main_effects_8a_9ano <- tidy_model8a %>% 
+  filter(str_detect(term, "^HORAS_TRABALHO_DOMESTICO") & !str_detect(term, ":SEXO"))
+
+main_effects_8b_9ano <- tidy_model8b %>% 
+  filter(str_detect(term, "^HORAS_TRABALHO_DOMESTICO") & !str_detect(term, ":SEXO"))
+
+interactions_8a_9ano <- tidy_model8a %>% 
+  filter(str_detect(term, "^HORAS_TRABALHO_DOMESTICO") & str_detect(term, ":SEXO"))
+
+interactions_8b_9ano <- tidy_model8b %>% 
+  filter(str_detect(term, "^HORAS_TRABALHO_DOMESTICO") & str_detect(term, ":SEXO"))
+
+
+interactions_8a_9ano <- interactions_8a_9ano %>%
+  mutate(term_main_effect = str_replace(term, ":SEXOFemale", ""))
+
+total_effects_girls_8a_9ano <- interactions_8a_9ano %>%
+  left_join(main_effects_8a_9ano, by = c("term_main_effect" = "term")) %>%
+  mutate(estimate_total = estimate.x + estimate.y) %>%
+  select(term = term_main_effect, estimate = estimate_total, 
+         std.error = std.error.x, statistic = statistic.x, p.value = p.value.x)
+
+interactions_8b_9ano <- interactions_8b_9ano %>%
+  mutate(term_main_effect = str_replace(term, ":SEXOFemale", ""))
+
+total_effects_girls_8b_9ano <- interactions_8b_9ano %>%
+  left_join(main_effects_8b_9ano, by = c("term_main_effect" = "term")) %>%
+  mutate(estimate_total = estimate.x + estimate.y) %>%
+  select(term = term_main_effect, estimate = estimate_total, 
+         std.error = std.error.x, statistic = statistic.x, p.value = p.value.x)
+
+# COMBINING EFFECTS
+combined_effects_9ano <- bind_rows(
+  main_effects_8a_9ano %>% mutate(subject = "Portuguese", gender = "Boys"),
+  total_effects_girls_8a_9ano %>% mutate(subject = "Portuguese", gender = "Girls"),
+  main_effects_8b_9ano %>% mutate(subject = "Mathematics", gender = "Boys"),
+  total_effects_girls_8b_9ano %>% mutate(subject = "Mathematics", gender = "Girls")
+)
+
+combined_effects_9ano$term <- factor(combined_effects_9ano$term, levels = c(
+  "HORAS_TRABALHO_DOMESTICO< 1 hour",
+  "HORAS_TRABALHO_DOMESTICO1 - 2 hours",
+  "HORAS_TRABALHO_DOMESTICO2 - 3 hours",
+  "HORAS_TRABALHO_DOMESTICO> 3 hours"
+))
+
+ggplot(combined_effects_9ano, aes(x = term, y = estimate, color = gender)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error), width = 0.2) +
+  facet_wrap(~ subject, ncol = 1) + # Removed scales = 'free' to keep both x and y the same across facets
+  scale_color_manual(values = c("Boys" = "turquoise4", "Girls" = "plum3")) +
+  theme_minimal() +
+  theme(strip.text.x = element_text(size = 12, face = "bold"),
+        strip.background = element_rect(fill = "grey", color = "white", size = 1),
+        legend.position = "bottom") + # Move the legend to the bottom
+  labs(
+       x = "Hours of Domestic Work",
+       y = "Coefficient Estimate",
+       color = "Gender") +
+  coord_flip()+
+  scale_x_discrete(labels = new_labels)
+
+
