@@ -772,7 +772,7 @@ EF9_2017_cut_selected_limpo <- EF9_2017_cut_selected %>%
                                  "D" = 4,
                                  "E" = 5,
                                  "F" = 6))
-
+###BINDING DFS
 # Binding 5th grade
 
 geral_5ano <- bind_rows(
@@ -844,7 +844,8 @@ library(ggplot2)
 library(gridExtra)
 library(patchwork)
 
-### DIFFERENCE IN THE NUMBER OF HORAS_TRABALHO_DOMESTICO PER GENDER
+### DESCRIPTIVE GRAPHS
+## DIFFERENCE IN THE NUMBER OF HORAS_TRABALHO_DOMESTICO PER GENDER
 
 calculate_gender_percentages <- function(df, grade) {
   clean_df <- df %>%
@@ -907,7 +908,7 @@ chisq_test_9ano <- chisq.test(contingency_table_9ano)
 chisq_test_9ano
 
 
-#### DIFFERENCE IN STUDENT ACHIEVEMENT
+## DIFFERENCE IN STUDENT ACHIEVEMENT
 
 geral_5ano <- geral_5ano %>% mutate(Year_Group = '5ano')
 geral_9ano <- geral_9ano %>% mutate(Year_Group = '9ano')
@@ -941,9 +942,7 @@ final_table <- mean_scores %>%
 
 
 
-
-
-### SHARE OF HOUSEHOLD CHORES BOYS X GIRLS PER YEAR
+## SHARE OF HOUSEHOLD CHORES BOYS X GIRLS PER YEAR
 
 # 5 GRADE
 combined_geral %>%
@@ -1036,7 +1035,7 @@ combined_geral %>%
 
            
 
-### MEAN PROFICIENCY PER GENDER
+## MEAN PROFICIENCY PER GENDER
 # 5 GRADE
 
 y_limits_5ano <- mean_scores %>%
@@ -1105,8 +1104,6 @@ p2_5ano <- mean_scores %>%
 combined_plot_5ano <- p1_5ano + p2_5ano + plot_layout(guides = "collect")
 
 
-print(combined_plot_5ano)
-
 # 9 GRADE
 y_limits_9ano <- mean_scores %>%
   filter(Year_Group == "9ano") %>%
@@ -1174,11 +1171,12 @@ p2_9ano <- mean_scores %>%
 combined_plot_9ano <- p1_9ano + p2_9ano + plot_layout(guides = "collect")
 combined_plot_9ano
 
+
+### PCA ANALYSIS
+
 library(corrplot)
 library(factoextra)
 library(magrittr)
-library(stargazer)
-
 
 
 ## Assigning numeric values to socioeconomic variables
@@ -1402,7 +1400,7 @@ abline(h = 1, col = "red", lty = 2)
 loadings_9ano <- pca_result_9ano$loadings
 loadings_9ano
 
-# mantain only components 1 
+# mantain only component 1 
 
 weights_9ano <- pca_result_9ano$sdev[1] ^ 2 %>% 
   `/`(sum(pca_result_9ano$sdev ^ 2))
@@ -1411,6 +1409,7 @@ weights_9ano <- pca_result_9ano$sdev[1] ^ 2 %>%
 ses_scores_9ano <- pca_result_9ano$scores[, 1] %*% matrix(weights_9ano, ncol = 1)
 
 # Create a data frame with ID_ALUNO and SES_Index
+
 ses_data_9ano <- data.frame(
   ID_ALUNO = geral_9ano_numeric$ID_ALUNO,
   SES_Index = as.vector(ses_scores_9ano)
@@ -1419,7 +1418,7 @@ ses_data_9ano <- data.frame(
 
 geral_9ano_com_ses <- left_join(geral_9ano, ses_data_9ano, by = "ID_ALUNO")
 
-#### Input within school median SES for NAs
+## Input within school median SES for NAs
 
 geral_5ano_com_ses <- geral_5ano_com_ses %>%
   group_by(ID_ESCOLA) %>%
@@ -1443,9 +1442,9 @@ library(gtsummary)
 library(gt)
 library(forcats)
 
+### DESCRIPTIVE STATISTICS
 
-# TABLE 1: descriptive stats
-
+# TABLE 1
 
 geral_5ano_com_ses <- geral_5ano_com_ses %>%
   mutate(
@@ -1586,7 +1585,7 @@ table_descriptive_5ano <- geral_5ano_com_ses %>%
     )
   )
 
-# 9 ano
+## 9 grade
 
 geral_9ano_com_ses <- geral_9ano_com_ses %>%
   mutate(
@@ -1646,6 +1645,7 @@ table_descriptive_9ano <- geral_9ano_com_ses %>%
     )
   )
 
+## Both grades
 
 table_descriptive_merged <- tbl_merge(
   tbls = list(table_descriptive_5ano, table_descriptive_9ano),
@@ -1655,7 +1655,7 @@ table_descriptive_merged <- tbl_merge(
 print(table_descriptive_merged)
 
 
-  library(table1)
+library(table1)
 library(gtsummary)
 library(marginaleffects)
 library(margins)
@@ -1667,7 +1667,9 @@ library(modelsummary)
 library(purrr)
 library(knitr)
 
-### 5 GRADE
+### MODELS
+
+## 5 GRADE
 
 geral_5ano_com_ses <- geral_5ano_com_ses %>%
   mutate(
@@ -1676,7 +1678,7 @@ geral_5ano_com_ses <- geral_5ano_com_ses %>%
   ) %>%
   ungroup()
 
-### 9 GRADE
+## 9 GRADE
 
 geral_9ano_com_ses <- geral_9ano_com_ses %>%
   mutate(
@@ -1693,7 +1695,7 @@ sd_prof_mt_saeb_9ano <- sd(geral_9ano_com_ses$PROFICIENCIA_MT_SAEB, na.rm = TRUE
 
 
 
-### Models
+## Models
 
 
 coef_map <- c(
@@ -1810,8 +1812,6 @@ vif_model4a
 vif_model4b
 
 
-
-
 ## 9 GRADE
 
 
@@ -1887,7 +1887,7 @@ vif_model8b
 
 
 
-### Model check
+### Model check (APPENDIX)
 ## Race
 # 5 GRADE
 
