@@ -1,7 +1,23 @@
 library(dplyr)
 library(data.table)
-library(writexl)
-library(stargazer)
+library(tidyr)
+library(ggplot2)
+library(gridExtra)
+library(patchwork)
+library(corrplot)
+library(factoextra)
+library(magrittr)
+library(gtsummary)
+library(gt)
+library(forcats)
+library(car)
+library(broom)
+library(modelsummary)
+library(purrr)
+library(knitr)
+library(stringr)
+library(sjPlot)
+library(sjmisc)
 
 EF5_2013_cut <- fread("EF5_2013_cut.csv", sep = ",")
 EF9_2013_cut <- fread("EF9_2013_cut.csv", sep = ",")
@@ -839,10 +855,7 @@ geral_9ano <- bind_rows(
   filter(IN_PREENCHIMENTO_QUESTIONARIO == 1 & IN_PREENCHIMENTO_PROVA == 1) %>%
   left_join(schools_9ano, by = c("ID_PROVA_BRASIL", "ID_ESCOLA"))
 
-library(tidyr)
-library(ggplot2)
-library(gridExtra)
-library(patchwork)
+
 
 ### DESCRIPTIVE GRAPHS
 ## DIFFERENCE IN THE NUMBER OF HORAS_TRABALHO_DOMESTICO PER GENDER
@@ -1174,11 +1187,6 @@ combined_plot_9ano
 
 ### PCA ANALYSIS
 
-library(corrplot)
-library(factoextra)
-library(magrittr)
-
-
 ## Assigning numeric values to socioeconomic variables
 # 5 GRADE
 
@@ -1437,11 +1445,6 @@ geral_9ano_com_ses <- geral_9ano_com_ses %>%
   ) %>%
   ungroup() 
 
-library(table1)
-library(gtsummary)
-library(gt)
-library(forcats)
-
 ### DESCRIPTIVE STATISTICS
 
 # TABLE 1
@@ -1654,18 +1657,6 @@ table_descriptive_merged <- tbl_merge(
 
 print(table_descriptive_merged)
 
-
-library(table1)
-library(gtsummary)
-library(marginaleffects)
-library(margins)
-library(emmeans)
-library(stargazer)
-library(car)
-library(broom)
-library(modelsummary)
-library(purrr)
-library(knitr)
 
 ### MODELS
 
@@ -1957,13 +1948,6 @@ modelsummary(model_check_ses,
              stars = c('*' = .1, '**' = .05, '***' = .01),
              coef_map = coef_map,
              gof_omit = "AIC|BIC|Log.Lik.|RMSE|F")
-
-library(stringr)
-library(sjPlot)
-library(sjmisc)
-library(ggplot2)
-library(tidyr)
-library(broom)
 
 
 new_labels <- c(
